@@ -9,6 +9,8 @@
   "author": "Flávio De Mattos",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^17.2.1"
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
+    "tweetnacl": "^1.0.3"
   }
 }
