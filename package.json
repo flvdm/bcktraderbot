@@ -1,0 +1,11 @@
+{
+  "name": "bcktradebot",
+  "version": "1.0.0",
+  "description": "A simple bot to trade on the Backpack exchange.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Flávio De Mattos",
+  "license": "ISC"
+}
