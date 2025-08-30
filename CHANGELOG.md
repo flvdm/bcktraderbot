@@ -1,5 +1,10 @@
 # Changelog 📋
 
+## [1.0.4] - 2025/08/29
+
+- Get account data from exchange.
+- Added more restrictions to MidCandle Strategy.
+
 ## [1.0.3] - 2025/08/29
 
 - Added authentication signature for API calls.

@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
 import MidCandle from "./src/Strategies/MidCandle.js";
+import AccountStore from "./src/Store/AccountStore.js";
+import System from "./src/Backpack/System.js";
 
 dotenv.config();
 
@@ -8,7 +10,11 @@ const TRADING_STRATEGY = process.env.TRADING_STRATEGY;
 console.log("");
 console.log(":::::::::: 🦾 Starting BckTraderBot 🦿 ::::::::::");
 
-global.account = await AccountController.get();
+const initResult = await AccountStore.init();
+if (!initResult) {
+  console.error("⚠️ Error getting Account stats. Stoping the bot.");
+  process.exit(1);
+}
 
 if (TRADING_STRATEGY === "MIDCANDLE") {
   console.log(`🎲 Selected strategy: ${TRADING_STRATEGY}`);
@@ -46,7 +52,10 @@ if (TRADING_STRATEGY === "MIDCANDLE") {
     console.log(`⏳ Waiting next ${timeframe} candle...`);
   }
 
+  const backpackTime = await System.getSystemTime();
   let currentTime = Date.now();
+  const timeDiff = backpackTime - currentTime;
+  currentTime += timeDiff;
   let waitTime = candleTime - (currentTime % candleTime) + 1000;
   process.stdout.write("\n");
   console.log(`⏳ Waiting next ${timeframe} candle...`);

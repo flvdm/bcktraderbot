@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import OrderController from "../Controllers/OrderController";
+import AccountStore from "../Store/AccountStore";
 dotenv.config();
 
 class MidCandle {
@@ -48,6 +49,27 @@ class MidCandle {
 
       //Cancel unfilled entry orders
       await this._cancelEntryOrders();
+
+      //Check if entry volume is set
+      if (Number.isNaN(this.maxOrderVolume)) {
+        console.log("⚠️ No valid Entry Volume set. Stoping the bot.");
+        return "stop";
+      }
+
+      //Check sufficient account balance for new orders
+      const capitalAvailable = await AccountStore.getAvailableCapital();
+      if (global.account.capitalAvailable < this.maxOrderVolume) {
+        console.log("⚠️ Insuficient balance to open new orders. Stoping the bot.");
+        return "stop";
+      }
+
+      //Retrieve openned positions and check max limits
+      const positions = await AccountStore.getOpenFuturesPositions();
+      const inPositionMarkets = positions.map((el) => el.symbol);
+      if (inPositionMarkets.length >= this.maxPositions) {
+        console.log("🔺 Max openned position limit reached. Skipping this candle...");
+        return;
+      }
 
       console.log("\n⚜️  Strategy evaluated. Possible orders placed and canceled.\n\n");
     } catch (error) {
