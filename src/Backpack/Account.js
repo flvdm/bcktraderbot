@@ -43,16 +43,6 @@ class Account {
       return null;
     }
   }
-
-  async getMarkets() {
-    try {
-      const response = await axios.get(`${process.env.API_URL}/api/v1/markets`);
-      return response.data;
-    } catch (error) {
-      console.error("getMarkets ERROR", error.response?.data || error.message);
-      return null;
-    }
-  }
 }
 
 export default new Account();

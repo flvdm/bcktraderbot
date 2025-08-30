@@ -1,5 +1,10 @@
 # Changelog 📋
 
+## [1.0.5] - 2025/08/30
+
+- Get candles data for symbols.
+- Generate strategy calculations on the symbols data.
+
 ## [1.0.4] - 2025/08/29
 
 - Get account data from exchange.

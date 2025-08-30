@@ -1,5 +1,6 @@
 import Account from "../Backpack/Account.js";
 import Position from "../Backpack/Position.js";
+import Markets from "../Backpack/Markets.js";
 
 class AccountStore {
   constructor() {
@@ -25,7 +26,7 @@ class AccountStore {
 
   async getMarkets(marketType = "PERP", orderBookState = "Open") {
     try {
-      let markets = await Account.getMarkets();
+      let markets = await Markets.getMarkets();
 
       markets = markets.filter((el) => {
         const mtMatch = marketType ? el.marketType === marketType : true;
