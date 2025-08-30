@@ -173,6 +173,32 @@ class MidCandle {
     return calc;
   }
 
+  _evaluateEntry({ symbol, variation, entryToMarketVariation, entryAmount, marketPrice, entryPrice }) {
+    if (variation < this.minPriceVariation) {
+      //console.log(`🚫  Invalid: Price VARIATION is too LOW to cover trade fees. ${variation} ${symbol} ${Utils.formatDateTime()}`);
+      console.log(`🚫  Invalid: Price VARIATION is too LOW to cover trade fees. ${Utils.formatDateTime()}`);
+      return { isValid: false };
+    }
+
+    if (entryToMarketVariation < this.entryDistanceLimiter) {
+      //console.log(`🚫  Invalid: Market price is TOO CLOSE the ENTRYPRICE. marketPrice: ${marketPrice} entryPrice: ${entryPrice} ${symbol} ${Utils.formatDateTime()}`);
+      console.log(`🚫  Invalid: Market price is TOO CLOSE the ENTRYPRICE. ${Utils.formatDateTime()}`);
+      return { isValid: false };
+    }
+
+    let maxAmount = this.maxOrderVolume;
+    if (this.entryBooster > 1 && this.boosterMarkets.includes(symbol)) {
+      maxAmount = this.maxOrderVolume * this.entryBooster;
+    }
+    if (entryAmount > maxAmount || entryAmount < this.minOrderVolume) {
+      //console.log(`🚫  Invalid: Required AMOUNT OUT of LIMITS. requiredAmount: ${entryAmount} ${symbol} ${Utils.formatDateTime()}`);
+      console.log(`🚫  Invalid: Required AMOUNT OUT of LIMITS. ${Utils.formatDateTime()}`);
+      return { isValid: false };
+    }
+
+    return { isValid: true };
+  }
+
   async run() {
     try {
       console.log("\n📣 Previous candle closed. Running a new cicle of analysis.\n");
@@ -208,6 +234,36 @@ class MidCandle {
         return isAuthorized && notInPosition;
       });
       const marketsData = await this._getMarketsData(avaibleMarkets);
+
+      //Evaluate the strategy logic and prepare order
+      for (const data of marketsData) {
+        console.log("\n...Evaluating: " + data.market.symbol);
+        const evaluationResult = this._evaluateEntry(data);
+        console.log(
+          `variation: ${data.variation.toFixed(8)}  |  minPriceVariation: ${this.minPriceVariation}\n` +
+            `entryToMarketVariation: ${data.entryToMarketVariation.toFixed(8)}  |  entryDistanceLimiter: ${
+              this.entryDistanceLimiter
+            }\n` +
+            `requiredAmount: ${data.entryAmount.toFixed(8)}  |  min and max Amount: ${this.minOrderVolume} & ${
+              this.maxOrderVolume
+            }`
+        );
+
+        if (evaluationResult.isValid) {
+          let order = {};
+          order.symbol = data.market.symbol;
+          order.entry = data.entryPrice;
+          order.decimal_quantity = data.market.decimal_quantity;
+          order.decimal_price = data.market.decimal_price;
+          order.stepSize_quantity = data.market.stepSize_quantity;
+          order.tickSize = data.market.tickSize;
+          order.volume = data.entryAmount;
+          order.stop = data.stopPrice;
+          order.target = data.targetPrice;
+          order.action = data.isLong ? "long" : "short";
+          console.log(`Valid long for ${data.symbol}: entryPrice: ${data.entryPrice}`);
+        }
+      }
 
       console.log("\n⚜️  Strategy evaluated. Possible orders placed and canceled.\n\n");
     } catch (error) {

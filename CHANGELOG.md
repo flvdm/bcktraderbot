@@ -1,5 +1,10 @@
 # Changelog 📋
 
+## [1.0.6] - 2025/08/30
+
+- Added evaluation of trade retrictions.
+- Prepare order data.
+
 ## [1.0.5] - 2025/08/30
 
 - Get candles data for symbols.
