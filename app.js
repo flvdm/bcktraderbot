@@ -23,13 +23,13 @@ const backpackTime = await System.getSystemTime();
 let currentTime = Date.now();
 const timeDiff = backpackTime - currentTime;
 currentTime += timeDiff;
+let candleTime;
 let timeframe = process.env.TIMEFRAME;
 
 if (tradingStrategy === "MIDCANDLE") {
   console.log(`🎲 Selected strategy: ${tradingStrategy}`);
   const midCandleStrategy = new MidCandle();
 
-  let candleTime;
   switch (timeframe) {
     case "1M":
       candleTime = 60_000;

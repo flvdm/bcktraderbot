@@ -25,6 +25,63 @@ class OrderController {
     }
   }
 
+  async openMarketOrder({
+    entry,
+    stop,
+    target,
+    action,
+    symbol,
+    volume,
+    decimal_quantity,
+    decimal_price,
+    stepSize_quantity,
+    tickSize,
+  }) {
+    try {
+      const isLong = action === "long";
+      const side = isLong ? "Bid" : "Ask";
+
+      const formatPrice = (value) => parseFloat(value).toFixed(decimal_price).toString();
+      const formatQuantity = (value) => parseFloat(value).toFixed(decimal_quantity).toString();
+
+      const entryPrice = parseFloat(entry);
+
+      const quantity = formatQuantity(Math.floor(volume / entryPrice / stepSize_quantity) * stepSize_quantity);
+      const price = formatPrice(entryPrice);
+
+      const body = {
+        symbol: symbol,
+        side,
+        orderType: "Market",
+        clientId: Math.floor(Math.random() * 1000000),
+        quantity,
+      };
+
+      const space = tickSize * tickSizeMultiply;
+      const takeProfitTriggerPrice = isLong ? target - space : target + space;
+      //const takeProfitTriggerPrice = entry;
+      const stopLossTriggerPrice = isLong ? stop + space : stop - space;
+
+      if (target !== undefined && !isNaN(parseFloat(target))) {
+        body.takeProfitTriggerBy = "LastPrice";
+        body.takeProfitTriggerPrice = formatPrice(takeProfitTriggerPrice);
+        //body.takeProfitLimitPrice = formatPrice(target);
+      }
+
+      if (stop !== undefined && !isNaN(parseFloat(stop))) {
+        body.stopLossTriggerBy = "LastPrice";
+        body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
+        //body.stopLossLimitPrice = formatPrice(stop);
+      }
+      console.log(body);
+      if (body.quantity > 0) {
+        return await Order.executeOrder(body);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async createLimitTriggerOrder({
     entry,
     stop,

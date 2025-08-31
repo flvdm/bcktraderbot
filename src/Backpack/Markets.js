@@ -52,6 +52,18 @@ class Markets {
       return null;
     }
   }
+
+  async getAllMarkPrices(symbol) {
+    try {
+      const response = await axios.get(`${process.env.API_URL}/api/v1/markPrices`, {
+        params: { symbol },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("getAllMarkPrices ERROR", error.response?.data || error.message);
+      return null;
+    }
+  }
 }
 
 export default new Markets();
