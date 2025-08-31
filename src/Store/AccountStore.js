@@ -35,8 +35,8 @@ class AccountStore {
       });
 
       markets = markets.map((el) => {
-        const stepSize = String(el.filters.quantity.stepSize);
-        const tickSize = String(el.filters.price.tickSize);
+        let stepSize = String(el.filters.quantity.stepSize);
+        let tickSize = String(el.filters.price.tickSize);
 
         let decimal_quantity;
         if (stepSize.includes(".")) decimal_quantity = stepSize.split(".")[1].length;

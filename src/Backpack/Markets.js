@@ -1,5 +1,5 @@
 import axios from "axios";
-import Utils from "../Utils/Utils";
+import Utils from "../Utils/Utils.js";
 
 class Markets {
   async getMarkets() {

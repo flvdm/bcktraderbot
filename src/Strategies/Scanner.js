@@ -5,15 +5,9 @@ import Markets from "../Backpack/Markets.js";
 import Utils from "../Utils/Utils.js";
 dotenv.config();
 
-class MidCandle {
+class Scanner {
   constructor() {
-    //keylevels
-    this.entryLevel = parseFloat(process.env.FLOAT_PARAM1) || 0.5;
-    this.stopLevel = parseFloat(process.env.FLOAT_PARAM2);
-    this.targetLevel = parseFloat(process.env.FLOAT_PARAM3);
-
-    //size loss profit
-    this.maxOrderVolume = Number(process.env.ENTRY_VOLUME);
+    this.orderVolume = Number(process.env.ENTRY_VOLUME);
     this.minOrderVolume = Number(process.env.MIN_ENTRY_VOLUME);
     this.lossAmount = Number(process.env.LOSS_AMOUNT);
     this.profitAmount = Number(process.env.PROFIT_AMOUNT);
@@ -21,7 +15,7 @@ class MidCandle {
     this.tpLevelByPercent = Number(String(process.env.PERCENT_TP_LEVEL).replace("%", "")) / 100.0;
 
     //retrictions
-    this.authorizedMarkets = JSON.parse(process.env.AUTHORIZED_MARKETS);
+    this.knownMarkets = JSON.parse(process.env.AUTHORIZED_MARKETS);
     this.maxPositions = Number(process.env.MAX_POSITIONS) || 999;
     this.minPriceVariation = Number(String(process.env.MIN_PERCENT_VARIATION).replace("%", "")) / 100.0;
     this.entryDistanceLimiter = parseFloat(process.env.FLOAT_PARAM4);
@@ -30,7 +24,7 @@ class MidCandle {
     this.timeframe = String(process.env.TIMEFRAME).toLowerCase().trim();
     this.againstMovement = process.env.BOOLEAN_PARAM1?.toLowerCase() === "true";
     this.entryBooster = Number(String(process.env.ENTRY_BOOSTER).replace("x", "")) || 1;
-    this.boosterMarkets = process.env.BOOSTER_MARKETS ? JSON.parse(process.env.BOOSTER_MARKETS) : [];
+    this.boosterMarkets = JSON.parse(process.env.BOOSTER_MARKETS);
   }
 
   async _cancelEntryOrders() {
@@ -214,7 +208,7 @@ class MidCandle {
 
       //Check sufficient account balance for new orders
       const capitalAvailable = await AccountStore.getAvailableCapital();
-      if (capitalAvailable < this.maxOrderVolume) {
+      if (global.account.capitalAvailable < this.maxOrderVolume) {
         console.log("⚠️ Insuficient balance to open new orders. Stoping the bot.");
         return "stop";
       }
@@ -274,4 +268,4 @@ class MidCandle {
   }
 }
 
-export default MidCandle;
+export default Scanner;

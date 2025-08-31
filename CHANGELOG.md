@@ -1,5 +1,10 @@
 # Changelog 📋
 
+## [1.0.7] - 2025/08/30
+
+- Many bug fixes.
+- Prototype of new Scanner strategy.
+
 ## [1.0.6] - 2025/08/30
 
 - Added evaluation of trade retrictions.

@@ -1,11 +1,12 @@
 import dotenv from "dotenv";
 import MidCandle from "./src/Strategies/MidCandle.js";
+import Scanner from "./src/Strategies/Scanner.js";
 import AccountStore from "./src/Store/AccountStore.js";
 import System from "./src/Backpack/System.js";
 
 dotenv.config();
 
-const TRADING_STRATEGY = process.env.TRADING_STRATEGY;
+const TRADING_STRATEGY = process.env.TRADING_STRATEGY.toUpperCase();
 
 console.log("");
 console.log(":::::::::: 🦾 Starting BckTraderBot 🦿 ::::::::::");
@@ -16,11 +17,16 @@ if (!initResult) {
   process.exit(1);
 }
 
+const backpackTime = await System.getSystemTime();
+let currentTime = Date.now();
+const timeDiff = backpackTime - currentTime;
+currentTime += timeDiff;
+let timeframe = process.env.TIMEFRAME;
+
 if (TRADING_STRATEGY === "MIDCANDLE") {
   console.log(`🎲 Selected strategy: ${TRADING_STRATEGY}`);
   const midCandleStrategy = new MidCandle();
 
-  let timeframe = process.env.TIMEFRAME;
   let candleTime;
   switch (timeframe) {
     case "1M":
@@ -52,15 +58,29 @@ if (TRADING_STRATEGY === "MIDCANDLE") {
     console.log(`⏳ Waiting next ${timeframe} candle...`);
   }
 
-  const backpackTime = await System.getSystemTime();
-  let currentTime = Date.now();
-  const timeDiff = backpackTime - currentTime;
-  currentTime += timeDiff;
   let waitTime = candleTime - (currentTime % candleTime) + 1000;
-  process.stdout.write("\n");
-  console.log(`⏳ Waiting next ${timeframe} candle...`);
+  console.log(`\n⏳ Waiting next ${timeframe} candle...`);
   await new Promise((resolve) => setTimeout(resolve, waitTime));
   runMidCandleStrategy();
+} else if (TRADING_STRATEGY === "SCANNER") {
+  console.log(`🎲 Selected strategy: ${TRADING_STRATEGY}`);
+  const scannerStrategy = new Scanner();
+
+  async function runScannerStrategy() {
+    const result = await scannerStrategy.run();
+    if (result === "stop") return;
+
+    const waitTime = candleTime + 1000 - ((Date.now() + timeDiff) % candleTime);
+    setTimeout(runScannerStrategy, waitTime);
+    console.log(`⏳ Waiting next ${timeframe} candle...`);
+  }
+
+  timeframe = "1M";
+  candleTime = 60000;
+  let waitTime = candleTime - (currentTime % candleTime) + 1000;
+  console.log(`\n⏳ Waiting next ${timeframe} candle...`);
+  await new Promise((resolve) => setTimeout(resolve, waitTime));
+  runScannerStrategy();
 } else {
   console.log("‼️ No Valid Strategy selected!");
 }
