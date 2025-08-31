@@ -26,7 +26,7 @@ currentTime += timeDiff;
 let timeframe = process.env.TIMEFRAME;
 
 if (tradingStrategy === "MIDCANDLE") {
-  console.log(`🎲 Selected strategy: ${TRADING_STRATEGY}`);
+  console.log(`🎲 Selected strategy: ${tradingStrategy}`);
   const midCandleStrategy = new MidCandle();
 
   let candleTime;
@@ -65,7 +65,7 @@ if (tradingStrategy === "MIDCANDLE") {
   await new Promise((resolve) => setTimeout(resolve, waitTime));
   runMidCandleStrategy();
 } else if (tradingStrategy === "SCANNER") {
-  console.log(`🎲 Selected strategy: ${TRADING_STRATEGY}`);
+  console.log(`🎲 Selected strategy: ${tradingStrategy}`);
   const scannerStrategy = new Scanner();
 
   async function runScannerStrategy() {
