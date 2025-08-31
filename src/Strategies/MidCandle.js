@@ -1,9 +1,7 @@
-import dotenv from "dotenv";
 import OrderController from "../Controllers/OrderController.js";
 import AccountStore from "../Store/AccountStore.js";
 import Markets from "../Backpack/Markets.js";
 import Utils from "../Utils/Utils.js";
-dotenv.config();
 
 class MidCandle {
   constructor() {

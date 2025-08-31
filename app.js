@@ -4,7 +4,8 @@ import Scanner from "./src/Strategies/Scanner.js";
 import AccountStore from "./src/Store/AccountStore.js";
 import System from "./src/Backpack/System.js";
 
-dotenv.config();
+const envFile = process.env.ENV_FILE || ".env";
+dotenv.config({ path: envFile });
 
 const TRADING_STRATEGY = process.env.TRADING_STRATEGY.toUpperCase();
 
