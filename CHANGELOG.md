@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.0.8] - 2025/08/30
+
+- Added Dockerfile.
+
 ## [1.0.7] - 2025/08/30
 
 - Many bug fixes.

@@ -1,0 +1,19 @@
+services:
+  app1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bcktraderbot:latest
+    container_name: bcktraderbot-bot1
+    env_file: .env.bot1
+    ports:
+      - "8081:3000"
+    restart: unless-stopped
+
+  app2:
+    image: bcktraderbot:latest
+    container_name: bcktraderbot-bot2
+    env_file: .env.bot2
+    ports:
+      - "8082:3000"
+    restart: unless-stopped
