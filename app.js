@@ -7,10 +7,10 @@ import System from "./src/Backpack/System.js";
 const envFile = process.env.ENV_FILE || ".env";
 dotenv.config({ path: envFile });
 
-const TRADING_STRATEGY = process.env.TRADING_STRATEGY.toUpperCase();
+const instanceName = process.env.INSTANCE_NAME ? process.env.INSTANCE_NAME : "";
 
-console.log("");
-console.log(":::::::::: 🦾 Starting BckTraderBot 🦿 ::::::::::");
+console.log("\n:::::::::: 🦾 Starting BckTraderBot 🦿 ::::::::::");
+if (instanceName) console.log("Instance: " + instanceName);
 
 const initResult = await AccountStore.init();
 if (!initResult) {
@@ -18,13 +18,14 @@ if (!initResult) {
   process.exit(1);
 }
 
+const tradingStrategy = process.env.TRADING_STRATEGY.toUpperCase();
 const backpackTime = await System.getSystemTime();
 let currentTime = Date.now();
 const timeDiff = backpackTime - currentTime;
 currentTime += timeDiff;
 let timeframe = process.env.TIMEFRAME;
 
-if (TRADING_STRATEGY === "MIDCANDLE") {
+if (tradingStrategy === "MIDCANDLE") {
   console.log(`🎲 Selected strategy: ${TRADING_STRATEGY}`);
   const midCandleStrategy = new MidCandle();
 
@@ -63,7 +64,7 @@ if (TRADING_STRATEGY === "MIDCANDLE") {
   console.log(`\n⏳ Waiting next ${timeframe} candle...`);
   await new Promise((resolve) => setTimeout(resolve, waitTime));
   runMidCandleStrategy();
-} else if (TRADING_STRATEGY === "SCANNER") {
+} else if (tradingStrategy === "SCANNER") {
   console.log(`🎲 Selected strategy: ${TRADING_STRATEGY}`);
   const scannerStrategy = new Scanner();
 
