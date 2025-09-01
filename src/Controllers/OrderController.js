@@ -25,6 +25,15 @@ class OrderController {
     }
   }
 
+  async cancelAllOrders(symbol, orderType = "") {
+    //orderType: "RestingLimitOrder" or "ConditionalOrder"
+    try {
+      await Order.cancelOpenOrders(symbol, orderType);
+    } catch (err) {
+      console.error("❌ cancelAllOrders ERROR", err.message);
+    }
+  }
+
   async openMarketOrder({
     entry,
     stop,
@@ -78,7 +87,7 @@ class OrderController {
         return await Order.executeOrder(body);
       }
     } catch (error) {
-      console.log(error);
+      console.log("❌ openMarketOrder ERROR", error);
     }
   }
 
@@ -136,7 +145,7 @@ class OrderController {
       console.log("Order body: ", body);
       return await Order.executeOrder(body);
     } catch (err) {
-      console.error("❌ Order creation error:", err.message);
+      console.error("❌ createLimitTriggerOrder ERROR", err.message);
     }
   }
 
@@ -191,7 +200,7 @@ class OrderController {
 
       return await Order.executeOrder(body);
     } catch (err) {
-      console.error("❌ Order creation error:", err.message);
+      console.error("❌ createMarketTriggerOrder ERROR", err.message);
     }
   }
 
@@ -219,7 +228,69 @@ class OrderController {
 
       await Order.executeOrder(body);
     } catch (err) {
-      console.error("❌ Order creation error:", err.message);
+      console.error("❌ createTestOrder ERROR", err.message);
+    }
+  }
+
+  async createBatchOfMarketTriggerOrders(ordersArray) {
+    try {
+      const formatPrice = (value, decimal_price) => parseFloat(value).toFixed(decimal_price).toString();
+      const formatQuantity = (value, decimal_quantity) => parseFloat(value).toFixed(decimal_quantity).toString();
+      const formatedOrders = [];
+      for (const order of ordersArray) {
+        order.decimal_price = Number(order.decimal_price);
+        order.decimal_quantity = Number(order.decimal_quantity);
+        order.stepSize_quantity = parseFloat(order.stepSize_quantity);
+        order.tickSize = parseFloat(order.tickSize);
+        const isLong = order.action === "long";
+        const side = isLong ? "Bid" : "Ask";
+        const entryPrice = parseFloat(order.entry);
+        const qnt = formatQuantity(
+          Math.floor(order.volume / entryPrice / order.stepSize_quantity) * order.stepSize_quantity,
+          order.decimal_quantity
+        );
+        const space = order.tickSize * 1;
+        const entryTriggerPrice = isLong ? order.entry - space : order.entry + space;
+
+        const body = {
+          symbol: order.symbol,
+          orderType: "Market",
+          side,
+          reduceOnly: false,
+          timeInForce: "GTC",
+          triggerBy: "LastPrice",
+          triggerPrice: formatPrice(entryTriggerPrice, order.decimal_price),
+          triggerQuantity: qnt,
+        };
+        console.log(
+          "|body.triggerPrice: ",
+          body.triggerPrice,
+          "|entryTriggerPrice: ",
+          entryTriggerPrice,
+          "|order.entry: ",
+          order.entry
+        );
+
+        const takeProfitTriggerPrice = isLong ? order.target - space : order.target + space;
+        const stopLossTriggerPrice = isLong ? order.stop + space : order.stop - space;
+
+        if (order.target !== undefined && !isNaN(order.target)) {
+          body.takeProfitTriggerBy = "LastPrice";
+          body.takeProfitTriggerPrice = formatPrice(takeProfitTriggerPrice, order.decimal_price);
+          //body.takeProfitLimitPrice =  formatPrice(order.target);
+        }
+
+        if (order.stop !== undefined && !isNaN(order.stop)) {
+          body.stopLossTriggerBy = "LastPrice";
+          body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice, order.decimal_price);
+          //body.stopLossLimitPrice = formatPrice(order.stop);
+        }
+
+        formatedOrders.push(body);
+      }
+      return await Order.executeOrdersBatch(formatedOrders);
+    } catch (err) {
+      console.error("❌ createBatchOfMarketTriggerOrders ERROR", err.message);
     }
   }
 }

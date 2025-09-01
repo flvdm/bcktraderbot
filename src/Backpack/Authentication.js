@@ -10,20 +10,27 @@ export function auth({ instruction, params = {}, timestamp, window = 10000 }) {
   const privateKeySeed = Buffer.from(process.env.BACKPACK_API_SECRET, "base64");
   const keyPair = nacl.sign.keyPair.fromSeed(privateKeySeed);
 
-  const sortedParams = Object.keys(params)
-    .sort()
-    .map((key) => `${key}=${params[key]}`)
-    .join("&");
+  let payload = "";
+  if (Array.isArray(params)) {
+    for (const param of params) {
+      const sortedParams = Object.keys(param)
+        .sort()
+        .map((key) => `${key}=${param[key]}`)
+        .join("&");
+      const baseStr = sortedParams ? "instruction=" + instruction + "&" + sortedParams : "";
+      payload = payload + baseStr + "&";
+    }
+    payload = payload + "timestamp=" + timestamp + "&window=" + window;
+  } else {
+    const sortedParams = Object.keys(params)
+      .sort()
+      .map((key) => `${key}=${params[key]}`)
+      .join("&");
 
-  const baseStr = sortedParams ? "&" + sortedParams : "";
-  const payload =
-    "instruction=" +
-    instruction +
-    baseStr +
-    "&timestamp=" +
-    timestamp +
-    "&window=" +
-    window;
+    const baseStr = sortedParams ? "&" + sortedParams : "";
+    payload = "instruction=" + instruction + baseStr + "&timestamp=" + timestamp + "&window=" + window;
+  }
+
   const signature = nacl.sign.detached(Buffer.from(payload), keyPair.secretKey);
 
   result["X-Signature"] = Buffer.from(signature).toString("base64");

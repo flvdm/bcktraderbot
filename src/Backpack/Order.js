@@ -33,10 +33,7 @@ class Order {
       });
       return response.data;
     } catch (error) {
-      console.error(
-        "getOpenOrder ERROR",
-        error.response?.data || error.message
-      );
+      console.error("getOpenOrder ERROR", error.response?.data || error.message);
       return null;
     }
   }
@@ -61,10 +58,7 @@ class Order {
       });
       return response.data;
     } catch (error) {
-      console.error(
-        "getOpenOrders ERROR",
-        error.response?.data || error.message
-      );
+      console.error("getOpenOrders ERROR", error.response?.data || error.message);
       return null;
     }
   }
@@ -78,20 +72,33 @@ class Order {
     });
 
     try {
-      const { data } = await axios.post(
-        `${process.env.API_URL}/api/v1/order`,
-        body,
-        {
-          headers,
-        }
-      );
+      const { data } = await axios.post(`${process.env.API_URL}/api/v1/order`, body, {
+        headers,
+      });
       console.log("✅ executeOrder Success!", data.symbol);
       return data;
     } catch (error) {
-      console.error(
-        "❌ executeOrder ERROR",
-        error.response?.data || error.message
-      );
+      console.error("❌ executeOrder ERROR", error.response?.data || error.message);
+      return null;
+    }
+  }
+
+  async executeOrdersBatch(body) {
+    const timestamp = Date.now();
+    const headers = auth({
+      instruction: "orderExecute",
+      timestamp,
+      params: body,
+    });
+
+    try {
+      const { data } = await axios.post(`${process.env.API_URL}/api/v1/orders`, body, {
+        headers,
+      });
+      console.log("✅ executeOrdersBatch Success!", data.symbol);
+      return data;
+    } catch (error) {
+      console.error("❌ executeOrdersBatch ERROR", error.response?.data || error.message);
       return null;
     }
   }
@@ -116,19 +123,13 @@ class Order {
     });
 
     try {
-      const response = await axios.delete(
-        `${process.env.API_URL}/api/v1/order`,
-        {
-          headers,
-          data: params,
-        }
-      );
+      const response = await axios.delete(`${process.env.API_URL}/api/v1/order`, {
+        headers,
+        data: params,
+      });
       return response.data;
     } catch (error) {
-      console.error(
-        "cancelOpenOrder ERROR",
-        error.response?.data || error.message
-      );
+      console.error("cancelOpenOrder ERROR", error.response?.data || error.message);
       return null;
     }
   }
@@ -152,19 +153,13 @@ class Order {
     });
 
     try {
-      const response = await axios.delete(
-        `${process.env.API_URL}/api/v1/orders`,
-        {
-          headers,
-          data: params,
-        }
-      );
+      const response = await axios.delete(`${process.env.API_URL}/api/v1/orders`, {
+        headers,
+        data: params,
+      });
       return response.data;
     } catch (error) {
-      console.error(
-        "cancelOpenOrders ERROR",
-        error.response?.data || error.message
-      );
+      console.error("cancelOpenOrders ERROR", error.response?.data || error.message);
       return null;
     }
   }

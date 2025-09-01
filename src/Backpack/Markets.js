@@ -12,7 +12,7 @@ class Markets {
     }
   }
 
-  async getKLines(symbol, interval, limit) {
+  async getKLines(symbol, interval, limit, initialTimestamp = null) {
     if (!symbol) {
       console.error("symbol required");
       return null;
@@ -29,7 +29,9 @@ class Markets {
     }
 
     try {
-      const now = Utils.roundToPreviousMinuteInterval(interval) / 1000;
+      const now = initialTimestamp
+        ? Utils.roundToPreviousMinuteInterval(interval, initialTimestamp) / 1000
+        : Utils.roundToPreviousMinuteInterval(interval) / 1000;
       const duration = Utils.getIntervalInSeconds(interval) * limit;
       const startTime = now - duration;
       const endTime = now;

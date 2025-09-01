@@ -6,6 +6,7 @@ import System from "./src/Backpack/System.js";
 
 const envFile = process.env.ENV_FILE || ".env";
 dotenv.config({ path: envFile });
+global.isDebug = !!process.env.VSCODE_INSPECTOR_OPTIONS;
 
 const instanceName = process.env.INSTANCE_NAME ? process.env.INSTANCE_NAME : "";
 
@@ -61,10 +62,12 @@ if (tradingStrategy === "MIDCANDLE") {
   }
 
   let waitTime = candleTime - (currentTime % candleTime) + 1000;
+  if (global.isDebug) waitTime = 0;
   console.log(`\n⏳ Waiting next ${timeframe} candle...`);
   await new Promise((resolve) => setTimeout(resolve, waitTime));
   runMidCandleStrategy();
-} else if (tradingStrategy === "SCANNER") {
+} //
+else if (tradingStrategy === "SCANNER") {
   console.log(`🎲 Selected strategy: ${tradingStrategy}`);
   const scannerStrategy = new Scanner();
 
@@ -80,6 +83,7 @@ if (tradingStrategy === "MIDCANDLE") {
   timeframe = "1M";
   candleTime = 60000;
   let waitTime = candleTime - (currentTime % candleTime) + 1000;
+  if (global.isDebug) waitTime = 0;
   console.log(`\n⏳ Waiting next ${timeframe} candle...`);
   await new Promise((resolve) => setTimeout(resolve, waitTime));
   runScannerStrategy();
