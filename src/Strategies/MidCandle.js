@@ -174,13 +174,13 @@ class MidCandle {
   _evaluateEntry({ symbol, variation, entryToMarketVariation, entryAmount, marketPrice, entryPrice }) {
     if (variation < this.minPriceVariation) {
       //console.log(`🚫  Invalid: Price VARIATION is too LOW to cover trade fees. ${variation} ${symbol} ${Utils.formatDateTime()}`);
-      console.log(`🚫  Invalid: Price VARIATION is too LOW to cover trade fees. ${Utils.formatDateTime()}`);
+      console.log(`🚫  Invalid: Price VARIATION is too LOW to cover trade fees.`);
       return { isValid: false };
     }
 
     if (entryToMarketVariation < this.entryDistanceLimiter) {
       //console.log(`🚫  Invalid: Market price is TOO CLOSE the ENTRYPRICE. marketPrice: ${marketPrice} entryPrice: ${entryPrice} ${symbol} ${Utils.formatDateTime()}`);
-      console.log(`🚫  Invalid: Market price is TOO CLOSE the ENTRYPRICE. ${Utils.formatDateTime()}`);
+      console.log(`🚫  Invalid: Market price is TOO CLOSE the ENTRYPRICE.`);
       return { isValid: false };
     }
 
@@ -190,7 +190,7 @@ class MidCandle {
     }
     if (entryAmount > maxAmount || entryAmount < this.minOrderVolume) {
       //console.log(`🚫  Invalid: Required AMOUNT OUT of LIMITS. requiredAmount: ${entryAmount} ${symbol} ${Utils.formatDateTime()}`);
-      console.log(`🚫  Invalid: Required AMOUNT OUT of LIMITS. ${Utils.formatDateTime()}`);
+      console.log(`🚫  Invalid: Required AMOUNT OUT of LIMITS.`);
       return { isValid: false };
     }
 
@@ -265,7 +265,11 @@ class MidCandle {
         }
       }
 
-      console.log("\n⚜️  Strategy evaluated. Possible orders placed and canceled.\n\n");
+      console.log(
+        "\n⚜️  Strategy evaluated. Possible orders placed and canceled. " +
+          Utils.getFormatedCurrentDateTime(-3) +
+          "\n\n"
+      );
     } catch (error) {
       console.log(error);
     }

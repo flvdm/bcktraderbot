@@ -82,10 +82,82 @@ class OrderController {
         body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
         //body.stopLossLimitPrice = formatPrice(stop);
       }
-      console.log(body);
+      console.log("openMarketOrder body: ", body);
       if (body.quantity > 0) {
         return await Order.executeOrder(body);
       }
+    } catch (error) {
+      console.log("❌ openMarketOrder ERROR", error);
+    }
+  }
+
+  async openMarketOrderScanner({
+    entry,
+    stop,
+    target,
+    action,
+    symbol,
+    volume,
+    decimal_quantity,
+    decimal_price,
+    stepSize_quantity,
+    tickSize,
+  }) {
+    try {
+      const isLong = action === "long";
+      const side = isLong ? "Bid" : "Ask";
+      const entryPrice = parseFloat(entry);
+      const qtt = volume / entryPrice;
+
+      let qtdHouses = 5;
+      for (let i = 0; i < 5; i++) {
+        if ((qtt * 10 ** i).toFixed() >= 1) {
+          qtdHouses = i;
+          break;
+        }
+      }
+
+      let prcHouses = 6;
+      for (let i = 1; i < 6; i++) {
+        if ((entryPrice * 10 ** i).toFixed() >= 1000) {
+          prcHouses = i;
+          break;
+        }
+      }
+
+      const formatPrice = (value) => parseFloat(value).toFixed(prcHouses).toString();
+      const formatQuantity = (value) => parseFloat(value).toFixed(qtdHouses).toString();
+
+      const quantity = formatQuantity(qtt);
+      const price = formatPrice(entryPrice);
+
+      const body = {
+        symbol: symbol,
+        side,
+        orderType: "Market",
+        clientId: Math.floor(Math.random() * 1000000),
+        quantity,
+      };
+
+      const space = 0;
+      const takeProfitTriggerPrice = isLong ? target - space : target + space;
+      //const takeProfitTriggerPrice = entry;
+      const stopLossTriggerPrice = isLong ? stop + space : stop - space;
+
+      if (target !== undefined && !isNaN(parseFloat(target))) {
+        body.takeProfitTriggerBy = "LastPrice";
+        body.takeProfitTriggerPrice = formatPrice(takeProfitTriggerPrice);
+        //body.takeProfitLimitPrice = formatPrice(target);
+      }
+
+      if (stop !== undefined && !isNaN(parseFloat(stop))) {
+        body.stopLossTriggerBy = "LastPrice";
+        body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
+        //body.stopLossLimitPrice = formatPrice(stop);
+      }
+      console.log("openMarketOrderScanner body: ", body);
+
+      return await Order.executeOrder(body);
     } catch (error) {
       console.log("❌ openMarketOrder ERROR", error);
     }
@@ -142,7 +214,7 @@ class OrderController {
         //body.stopLossLimitPrice = formatPrice(stop);
       }
 
-      console.log("Order body: ", body);
+      console.log("createLimitTriggerOrder body: ", body);
       return await Order.executeOrder(body);
     } catch (err) {
       console.error("❌ createLimitTriggerOrder ERROR", err.message);
@@ -198,6 +270,7 @@ class OrderController {
         //body.stopLossLimitPrice = formatPrice(stop);
       }
 
+      console.log("createMarketTriggerOrder body: ", body);
       return await Order.executeOrder(body);
     } catch (err) {
       console.error("❌ createMarketTriggerOrder ERROR", err.message);
@@ -262,14 +335,6 @@ class OrderController {
           triggerPrice: formatPrice(entryTriggerPrice, order.decimal_price),
           triggerQuantity: qnt,
         };
-        console.log(
-          "|body.triggerPrice: ",
-          body.triggerPrice,
-          "|entryTriggerPrice: ",
-          entryTriggerPrice,
-          "|order.entry: ",
-          order.entry
-        );
 
         const takeProfitTriggerPrice = isLong ? order.target - space : order.target + space;
         const stopLossTriggerPrice = isLong ? order.stop + space : order.stop - space;
@@ -291,6 +356,31 @@ class OrderController {
       return await Order.executeOrdersBatch(formatedOrders);
     } catch (err) {
       console.error("❌ createBatchOfMarketTriggerOrders ERROR", err.message);
+    }
+  }
+
+  async openOrderSpot({ side, symbol, volume, quantity }) {
+    try {
+      const body = {
+        symbol: symbol,
+        side,
+        orderType: "Market",
+        timeInForce: "GTC",
+        selfTradePrevention: "RejectTaker",
+      };
+
+      if (quantity) {
+        body.quantity = quantity;
+      } else {
+        body.quoteQuantity = volume;
+      }
+
+      console.log("openOrderSpot body: ", body);
+
+      const resp = await Order.executeOrder(body);
+      return resp;
+    } catch (error) {
+      console.log(error);
     }
   }
 }
