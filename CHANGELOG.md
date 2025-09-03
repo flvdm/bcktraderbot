@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.1] - 2025/09/03
+
+- Bug fixes in Scanner strategy.
+
 ## [1.1.0] - 2025/09/01
 
 - Many bug fixes in Scanner strategy.

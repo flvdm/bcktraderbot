@@ -21,7 +21,7 @@ class Scanner {
     this.newMarkets = newMarketsBKP ? newMarketsBKP : [];
   }
 
-  async _doMarketTrade(newMarket) {
+  async _doMarketTrade(newMarket, side = "random") {
     const markPrices = await Markets.getAllMarkPrices(newMarket.symbol);
     const marketPrice = parseFloat(markPrices[0].markPrice);
     newMarket.price = marketPrice;
@@ -32,19 +32,30 @@ class Scanner {
     order.decimal_price = newMarket.decimal_price;
     order.stepSize_quantity = newMarket.stepSize_quantity;
     order.tickSize = newMarket.tickSize;
-    order.volume = 1;
+    order.volume = 10;
 
-    const randomBoolean = Math.random() >= 0.5;
-    if (randomBoolean) {
+    if (side === "long") {
       order.stop = marketPrice * 0.99;
       order.target = marketPrice * 1.01;
       order.action = "long";
-    } else {
+    } //
+    else if (side === "short") {
       order.stop = marketPrice * 1.01;
       order.target = marketPrice * 0.99;
       order.action = "short";
+    } //
+    else {
+      const randomBoolean = Math.random() >= 0.5;
+      if (randomBoolean) {
+        order.stop = marketPrice * 0.99;
+        order.target = marketPrice * 1.01;
+        order.action = "long";
+      } else {
+        order.stop = marketPrice * 1.01;
+        order.target = marketPrice * 0.99;
+        order.action = "short";
+      }
     }
-
     await OrderController.openMarketOrderScanner(order);
   }
 
@@ -102,6 +113,7 @@ class Scanner {
             totalTrades: 0,
             clockinNextTime: null,
             clockinOrdersSent: 0,
+            doLong: false,
             phase: "first50",
             decimal_quantity: el.decimal_quantity,
             decimal_price: el.decimal_price,
@@ -114,7 +126,9 @@ class Scanner {
 
       if (newMarkets.length > 0) {
         console.log("🌟 New PREP market(s) FOUND!", newMarkets);
-        (await Utils.notify("🌟 New PERP token(s) found! " + newMarkets.symbol)) + "\nInitiating the routine.";
+        for (const market of newMarkets) {
+          await Utils.notify("🌟 New PERP token(s) found! " + market.symbol + "\nInitiating the routine.");
+        }
         await Utils.saveDataToFile(this.knownMarkets, "knownPerpMarkets.json");
       } else {
         console.log("No new PERP market found.");
@@ -126,7 +140,7 @@ class Scanner {
           // First 50 routine: try to be one of 50 to trade the new token
           if (newMarket.phase === "first50") {
             console.log("1️⃣  Executing 'first50' routine for " + newMarket.symbol);
-            await this._doMarketTrade(newMarket);
+            await this._doMarketTrade(newMarket, "long");
             newMarket.phase = "lucky777";
           }
           // Lucky 777 routine: try to do the 777 trade on the new token
@@ -135,8 +149,14 @@ class Scanner {
             if (!newMarket.price) {
               await OrderController.cancelAllOrders(newMarket.symbol);
               const candles = await Markets.getKLines(newMarket.symbol, "1m", 1);
-              await this._doMarketTrade(newMarket);
-              newMarket.totalTrades += Number(candles[0].trades);
+              const markPrices = await Markets.getAllMarkPrices(newMarket.symbol);
+              newMarket.price = parseFloat(markPrices[0].markPrice);
+              if (!newMarket.doLong) {
+                await this._doMarketTrade(newMarket, "short");
+                newMarket.doLong = true;
+              }
+              const trades = Number(candles[0].trades);
+              if (trades) newMarket.totalTrades += trades;
               console.log("totalTrades: ", newMarket.totalTrades);
               if (newMarket.totalTrades > 777) {
                 newMarket.phase = "clockingin";
@@ -144,9 +164,6 @@ class Scanner {
                 newMarket.clockinNextTime = Date.now() + 43200000;
                 console.log(newMarket.symbol + " set to 'clockingin' phase.");
               }
-              const markPrices = await Markets.getAllMarkPrices(newMarket.symbol);
-              await this._doMarketTrade(newMarket);
-              newMarket.price = parseFloat(markPrices[0].markPrice);
             } else {
               const qtt = 1 / newMarket.price;
               newMarket.qtdHouses = 5;
@@ -179,7 +196,13 @@ class Scanner {
             );
             if (Date.now() > newMarket.clockinNextTime) {
               console.log("3️⃣  Executing 'clocking in' routine for " + newMarket.symbol);
-              await this._doMarketTrade(newMarket);
+              if (newMarket.doLong) {
+                await this._doMarketTrade(newMarket, "long");
+                newMarket.doLong = !newMarket.doLong;
+              } else {
+                await this._doMarketTrade(newMarket, "short");
+                newMarket.doLong = !newMarket.doLong;
+              }
               newMarket.clockinOrdersSent += 1;
               newMarket.clockinNextTime += 43200000;
               if (newMarket.clockinOrdersSent >= 15) {
