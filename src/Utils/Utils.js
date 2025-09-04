@@ -72,14 +72,14 @@ class Utils {
 
   inferMarketProps(price) {
     const qtt = 1 / price;
-    const qtdHouses = 5;
+    let qtdHouses = 5;
     for (let i = 0; i < 5; i++) {
       if ((qtt * 10 ** i).toFixed() >= 1) {
         qtdHouses = i;
         break;
       }
     }
-    const prcHouses = 6;
+    let prcHouses = 6;
     for (let i = 1; i < 6; i++) {
       if ((price * 10 ** i).toFixed() >= 1000) {
         prcHouses = i;

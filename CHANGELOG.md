@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.3] - 2025/09/04
+
+- Little corrections.
+
 ## [1.1.2] - 2025/09/04
 
 - Added more defense against adverse situations.
