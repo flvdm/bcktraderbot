@@ -70,6 +70,33 @@ class Utils {
     return rounded;
   }
 
+  inferMarketProps(price) {
+    const qtt = 1 / price;
+    const qtdHouses = 5;
+    for (let i = 0; i < 5; i++) {
+      if ((qtt * 10 ** i).toFixed() >= 1) {
+        qtdHouses = i;
+        break;
+      }
+    }
+    const prcHouses = 6;
+    for (let i = 1; i < 6; i++) {
+      if ((price * 10 ** i).toFixed() >= 1000) {
+        prcHouses = i;
+        break;
+      }
+    }
+    const prcStep = 1 / 10 ** prcHouses;
+    const qtdStep = 1 / 10 ** qtdHouses;
+
+    return {
+      prcHouses,
+      qtdHouses,
+      prcStep,
+      qtdStep,
+    };
+  }
+
   async notify(msg) {
     if (!process.env.DISCORD_WEBHOOK) console.log("notify: Notification URL not found.");
     try {

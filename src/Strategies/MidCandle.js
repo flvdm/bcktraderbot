@@ -67,6 +67,15 @@ class MidCandle {
         const candleTime = Utils.formatDateTime(d.getTime());
         console.log(`🔹 Getting market for ${market.symbol}. Candle time: ${candleTime}`);
 
+        if (market.decimal_quantity === undefined || market.stepSize_quantity === 0) {
+          console.log("Props inference for: " + market.symbol);
+          const props = Utils.inferMarketProps(marketPrice);
+          market.decimal_quantity = props.qtdHouses;
+          market.decimal_price = props.prcHouses;
+          market.stepSize_quantity = props.qtdStep;
+          market.tickSize = props.prcStep;
+        }
+
         const data = {
           symbol: market.symbol,
           market,

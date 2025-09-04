@@ -95,7 +95,7 @@ class Order {
       const { data } = await axios.post(`${process.env.API_URL}/api/v1/orders`, body, {
         headers,
       });
-      console.log("✅ executeOrdersBatch Success!", data.symbol);
+      console.log("✅ executeOrdersBatch Success!", body.symbol);
       return data;
     } catch (error) {
       console.error("❌ executeOrdersBatch ERROR", error.response?.data || error.message);

@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.2] - 2025/09/04
+
+- Added more defense against adverse situations.
+
 ## [1.1.1] - 2025/09/03
 
 - Bug fixes in Scanner strategy.
