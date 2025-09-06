@@ -3,12 +3,15 @@ import MidCandle from "./src/Strategies/MidCandle.js";
 import Scanner from "./src/Strategies/Scanner.js";
 import AccountStore from "./src/Store/AccountStore.js";
 import System from "./src/Backpack/System.js";
+import { loggerInit, logInfo } from "./src/Utils/logger.js";
 
 const envFile = process.env.ENV_FILE || ".env";
 dotenv.config({ path: envFile });
 global.isDebug = !!process.env.VSCODE_INSPECTOR_OPTIONS;
 
 const instanceName = process.env.INSTANCE_NAME ? process.env.INSTANCE_NAME : "";
+
+loggerInit(instanceName);
 
 console.log("\n:::::::::: 🦾 Starting BckTraderBot 🦿 ::::::::::");
 if (instanceName) console.log("Instance: " + instanceName);
@@ -26,6 +29,7 @@ const timeDiff = backpackTime - currentTime;
 currentTime += timeDiff;
 let candleTime;
 let timeframe = process.env.TIMEFRAME;
+logInfo(`Starting BckTradeBot ${instanceName} | ${tradingStrategy} ${timeframe}`);
 
 if (tradingStrategy === "MIDCANDLE") {
   console.log(`🎲 Selected strategy: ${tradingStrategy}`);

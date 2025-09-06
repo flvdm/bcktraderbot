@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.4] - 2025/09/06
+
+- Added logger module to save log info to disk.
+
 ## [1.1.3] - 2025/09/04
 
 - Little corrections.

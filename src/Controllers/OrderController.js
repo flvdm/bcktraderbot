@@ -1,5 +1,6 @@
 import Order from "../Backpack/Order.js";
 import Utils from "../Utils/Utils.js";
+import { logInfo } from "../Utils/logger.js";
 const tickSizeMultiply = 5;
 
 class OrderController {
@@ -82,7 +83,7 @@ class OrderController {
         body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
         //body.stopLossLimitPrice = formatPrice(stop);
       }
-      console.log("openMarketOrder body: ", body);
+      logInfo("openMarketOrder body: ", body);
       if (body.quantity > 0) {
         return await Order.executeOrder(body);
       }
@@ -155,7 +156,7 @@ class OrderController {
         body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
         //body.stopLossLimitPrice = formatPrice(stop);
       }
-      console.log("openMarketOrderScanner body: ", body);
+      logInfo("openMarketOrderScanner body: ", body);
 
       return await Order.executeOrder(body);
     } catch (error) {
@@ -214,7 +215,7 @@ class OrderController {
         //body.stopLossLimitPrice = formatPrice(stop);
       }
 
-      console.log("createLimitTriggerOrder body: ", body);
+      logInfo("createLimitTriggerOrder body: ", body);
       return await Order.executeOrder(body);
     } catch (err) {
       console.error("❌ createLimitTriggerOrder ERROR", err.message);
@@ -270,7 +271,7 @@ class OrderController {
         //body.stopLossLimitPrice = formatPrice(stop);
       }
 
-      console.log("createMarketTriggerOrder body: ", body);
+      logInfo("createMarketTriggerOrder body: ", body);
       return await Order.executeOrder(body);
     } catch (err) {
       console.error("❌ createMarketTriggerOrder ERROR", err.message);
@@ -353,6 +354,7 @@ class OrderController {
 
         formatedOrders.push(body);
       }
+      logInfo("createBatchOfMarketTriggerOrders formatedOrders: ", formatedOrders);
       return await Order.executeOrdersBatch(formatedOrders);
     } catch (err) {
       console.error("❌ createBatchOfMarketTriggerOrders ERROR", err.message);
@@ -375,8 +377,7 @@ class OrderController {
         body.quoteQuantity = volume;
       }
 
-      console.log("openOrderSpot body: ", body);
-
+      logInfo("openOrderSpot body: ", body);
       const resp = await Order.executeOrder(body);
       return resp;
     } catch (error) {

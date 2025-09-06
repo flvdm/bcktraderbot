@@ -2,6 +2,7 @@ import OrderController from "../Controllers/OrderController.js";
 import AccountStore from "../Store/AccountStore.js";
 import Markets from "../Backpack/Markets.js";
 import Utils from "../Utils/Utils.js";
+import { logInfo } from "../Utils/logger.js";
 
 class MidCandle {
   constructor() {
@@ -19,7 +20,7 @@ class MidCandle {
     this.tpLevelByPercent = Number(String(process.env.PERCENT_TP_LEVEL).replace("%", "")) / 100.0;
 
     //retrictions
-    this.authorizedMarkets = JSON.parse(process.env.AUTHORIZED_MARKETS);
+    this.authorizedMarkets = JSON.parse(process.env.AUTHORIZED_MARKETS) || [];
     this.maxPositions = Number(process.env.MAX_POSITIONS) || 999;
     this.minPriceVariation = Number(String(process.env.MIN_PERCENT_VARIATION).replace("%", "")) / 100.0;
     this.entryDistanceLimiter = parseFloat(process.env.FLOAT_PARAM4);
@@ -29,6 +30,8 @@ class MidCandle {
     this.againstMovement = process.env.BOOLEAN_PARAM1?.toLowerCase() === "true";
     this.entryBooster = Number(String(process.env.ENTRY_BOOSTER).replace("x", "")) || 1;
     this.boosterMarkets = process.env.BOOSTER_MARKETS ? JSON.parse(process.env.BOOSTER_MARKETS) : [];
+
+    logInfo("MidCandle properties", this);
   }
 
   async _cancelEntryOrders() {
@@ -67,7 +70,14 @@ class MidCandle {
         const candleTime = Utils.formatDateTime(d.getTime());
         console.log(`🔹 Getting market for ${market.symbol}. Candle time: ${candleTime}`);
 
+        let oldProps = null;
         if (market.decimal_quantity === undefined || market.stepSize_quantity === 0) {
+          oldProps = {
+            decimal_quantity: market.decimal_quantity,
+            decimal_price: market.decimal_price,
+            stepSize_quantity: market.stepSize_quantity,
+            tickSize: market.tickSize,
+          };
           console.log("Props inference for: " + market.symbol);
           const props = Utils.inferMarketProps(marketPrice);
           market.decimal_quantity = props.qtdHouses;
@@ -80,6 +90,8 @@ class MidCandle {
           symbol: market.symbol,
           market,
           marketPrice,
+          candle: candles[1],
+          oldProps,
           ...orderProperties,
         };
         marketsData.push(data);
@@ -177,6 +189,14 @@ class MidCandle {
       else calc.entryAmount = this.maxOrderVolume;
     }
 
+    calc.candleLength = candleLength;
+    calc.entryLength = entryLength;
+    calc.midPrice = midPrice;
+    calc.stopLength = stopLength;
+    calc.targetLength = targetLength;
+    calc.stopVariation = stopVariation;
+    calc.targetVariation = targetVariation;
+
     return calc;
   }
 
@@ -221,6 +241,7 @@ class MidCandle {
 
       //Check sufficient account balance for new orders
       const capitalAvailable = await AccountStore.getAvailableCapital();
+      logInfo("capitalAvailable", capitalAvailable);
       if (capitalAvailable < this.maxOrderVolume) {
         console.log("⚠️ Insuficient balance to open new orders. Stoping the bot.");
         return "stop";
@@ -229,6 +250,7 @@ class MidCandle {
       //Retrieve openned positions and check max limits
       const positions = await AccountStore.getOpenFuturesPositions();
       const inPositionMarkets = positions.map((el) => el.symbol);
+      logInfo("inPositionMarkets", inPositionMarkets);
       if (inPositionMarkets.length >= this.maxPositions) {
         console.log("🔺 Max openned position limit reached. Skipping this candle...");
         return;
@@ -240,7 +262,9 @@ class MidCandle {
         const notInPosition = !inPositionMarkets.includes(el.symbol);
         return isAuthorized && notInPosition;
       });
+      logInfo("avaibleMarkets", avaibleMarkets);
       const marketsData = await this._getMarketsData(avaibleMarkets);
+      logInfo("marketsData", marketsData);
 
       //Evaluate the strategy logic and prepare order
       for (const data of marketsData) {
@@ -269,6 +293,7 @@ class MidCandle {
           order.target = data.targetPrice;
           order.action = data.isLong ? "long" : "short";
           console.log(`Valid long for ${data.symbol}: entryPrice: ${data.entryPrice}`);
+          logInfo("order", order);
 
           await OrderController.createLimitTriggerOrder(order);
         }
