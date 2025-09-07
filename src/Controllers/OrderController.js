@@ -181,6 +181,10 @@ class OrderController {
       const qtt = formatQuantity(Math.floor(volume / parseFloat(entry) / stepSize_quantity) * stepSize_quantity);
       const entryPrice = formatPrice(entry);
 
+      let entryTriggerPrice = isLong ? entry - tickSize : entry + tickSize;
+      entryTriggerPrice = formatPrice(entryTriggerPrice);
+      entryTriggerPrice = formatPrice(entry);
+
       const body = {
         symbol,
         orderType: "Limit",
@@ -190,7 +194,7 @@ class OrderController {
         reduceOnly: false,
         timeInForce: "GTC",
         triggerBy: "LastPrice",
-        triggerPrice: entryPrice,
+        triggerPrice: entryTriggerPrice,
         triggerQuantity: qtt,
       };
 

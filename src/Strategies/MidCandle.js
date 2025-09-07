@@ -28,7 +28,7 @@ class MidCandle {
     //modiifiers
     this.timeframe = String(process.env.TIMEFRAME).toLowerCase().trim();
     this.againstMovement = process.env.BOOLEAN_PARAM1?.toLowerCase() === "true";
-    this.entryBooster = Number(String(process.env.ENTRY_BOOSTER).replace("x", "")) || 1;
+    this.entryBoosterMultiplier = Number(String(process.env.ENTRY_BOOSTER).replace("x", "")) || 1;
     this.boosterMarkets = process.env.BOOSTER_MARKETS ? JSON.parse(process.env.BOOSTER_MARKETS) : [];
 
     logInfo("MidCandle properties", this);
@@ -106,6 +106,17 @@ class MidCandle {
   _calculateOrderProperties(marketPrice, high, low, symbol) {
     const calc = {};
 
+    calc.maxOrderVolume = this.maxOrderVolume;
+    calc.minOrderVolume = this.minOrderVolume;
+    calc.lossAmount = this.lossAmount;
+    calc.profitAmount = this.profitAmount;
+    if (this.boosterMarkets.includes(symbol)) {
+      calc.maxOrderVolume *= this.entryBoosterMultiplier;
+      calc.minOrderVolume *= this.entryBoosterMultiplier;
+      calc.lossAmount *= this.entryBoosterMultiplier;
+      calc.profitAmount *= this.entryBoosterMultiplier;
+    }
+
     const candleLength = high - low;
     const entryLength = candleLength * this.entryLevel;
     calc.variation = high / low - 1;
@@ -116,17 +127,17 @@ class MidCandle {
     let stopLength;
     if (this.stopLevel) stopLength = candleLength * this.stopLevel;
     else if (this.slLevelByPercent) stopLength = calc.entryPrice * this.slLevelByPercent;
-    else if (this.lossAmount) {
-      stopLength = calc.entryPrice * (this.lossAmount / this.maxOrderVolume);
-      calc.entryAmount = this.maxOrderVolume;
+    else if (calc.lossAmount) {
+      stopLength = calc.entryPrice * (calc.lossAmount / calc.maxOrderVolume);
+      calc.entryAmount = calc.maxOrderVolume;
     }
 
     let targetLength = 0;
     if (this.targetLevel) targetLength = candleLength * this.targetLevel;
     else if (this.tpLevelByPercent) targetLength = calc.entryPrice * this.tpLevelByPercent;
-    else if (this.profitAmount) {
-      targetLength = calc.entryPrice * (this.profitAmount / this.maxOrderVolume);
-      calc.entryAmount = this.maxOrderVolume;
+    else if (calc.profitAmount) {
+      targetLength = calc.entryPrice * (calc.profitAmount / calc.maxOrderVolume);
+      calc.entryAmount = calc.maxOrderVolume;
     }
 
     let stopVariation;
@@ -184,9 +195,9 @@ class MidCandle {
       marketPrice > midPrice ? (marketPrice - low) / candleLength : (high - marketPrice) / candleLength;
 
     if (!calc.entryAmount) {
-      if (this.lossAmount) calc.entryAmount = this.lossAmount / stopVariation;
-      else if (this.profitAmount) calc.entryAmount = this.profitAmount / targetVariation;
-      else calc.entryAmount = this.maxOrderVolume;
+      if (calc.lossAmount) calc.entryAmount = calc.lossAmount / stopVariation;
+      else if (calc.profitAmount) calc.entryAmount = calc.profitAmount / targetVariation;
+      else calc.entryAmount = calc.maxOrderVolume;
     }
 
     calc.candleLength = candleLength;
@@ -200,25 +211,18 @@ class MidCandle {
     return calc;
   }
 
-  _evaluateEntry({ symbol, variation, entryToMarketVariation, entryAmount, marketPrice, entryPrice }) {
+  _evaluateEntry({ symbol, variation, entryToMarketVariation, entryAmount, maxOrderVolume, minOrderVolume }) {
     if (variation < this.minPriceVariation) {
-      //console.log(`🚫  Invalid: Price VARIATION is too LOW to cover trade fees. ${variation} ${symbol} ${Utils.formatDateTime()}`);
       console.log(`🚫  Invalid: Price VARIATION is too LOW to cover trade fees.`);
       return { isValid: false };
     }
 
     if (entryToMarketVariation < this.entryDistanceLimiter) {
-      //console.log(`🚫  Invalid: Market price is TOO CLOSE the ENTRYPRICE. marketPrice: ${marketPrice} entryPrice: ${entryPrice} ${symbol} ${Utils.formatDateTime()}`);
       console.log(`🚫  Invalid: Market price is TOO CLOSE the ENTRYPRICE.`);
       return { isValid: false };
     }
 
-    let maxAmount = this.maxOrderVolume;
-    if (this.entryBooster > 1 && this.boosterMarkets.includes(symbol)) {
-      maxAmount = this.maxOrderVolume * this.entryBooster;
-    }
-    if (entryAmount > maxAmount || entryAmount < this.minOrderVolume) {
-      //console.log(`🚫  Invalid: Required AMOUNT OUT of LIMITS. requiredAmount: ${entryAmount} ${symbol} ${Utils.formatDateTime()}`);
+    if (entryAmount > maxOrderVolume || entryAmount < minOrderVolume) {
       console.log(`🚫  Invalid: Required AMOUNT OUT of LIMITS.`);
       return { isValid: false };
     }
@@ -275,9 +279,9 @@ class MidCandle {
             `entryToMarketVariation: ${data.entryToMarketVariation.toFixed(8)}  |  entryDistanceLimiter: ${
               this.entryDistanceLimiter
             }\n` +
-            `requiredAmount: ${data.entryAmount.toFixed(8)}  |  min and max Amount: ${this.minOrderVolume} & ${
-              this.maxOrderVolume
-            }`
+            `requiredAmount: ${data.entryAmount.toFixed(2)}  |  min and max Amount: ${data.minOrderVolume.toFixed(
+              2
+            )} & ${data.maxOrderVolume.toFixed(2)}`
         );
 
         if (evaluationResult.isValid) {

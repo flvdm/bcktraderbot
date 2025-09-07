@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.6] - 2025/09/07
+
+- Changes to how booster markerts works in Midcandle strategy.
+
 ## [1.1.5] - 2025/09/07
 
 - Some changes to OrderController's calculations.
