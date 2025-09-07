@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.5] - 2025/09/07
+
+- Some changes to OrderController's calculations.
+
 ## [1.1.4] - 2025/09/06
 
 - Added logger module to save log info to disk.

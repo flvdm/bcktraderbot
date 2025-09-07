@@ -67,22 +67,22 @@ class OrderController {
         quantity,
       };
 
-      const space = tickSize * tickSizeMultiply;
-      const takeProfitTriggerPrice = isLong ? target - space : target + space;
-      //const takeProfitTriggerPrice = entry;
-      const stopLossTriggerPrice = isLong ? stop + space : stop - space;
+      // const space = tickSize * tickSizeMultiply;
+      // const takeProfitTriggerPrice = isLong ? target - space : target + space;
+      // const stopLossTriggerPrice = isLong ? stop + space : stop - space;
 
       if (target !== undefined && !isNaN(parseFloat(target))) {
         body.takeProfitTriggerBy = "LastPrice";
-        body.takeProfitTriggerPrice = formatPrice(takeProfitTriggerPrice);
+        body.takeProfitTriggerPrice = formatPrice(target);
         //body.takeProfitLimitPrice = formatPrice(target);
       }
 
       if (stop !== undefined && !isNaN(parseFloat(stop))) {
         body.stopLossTriggerBy = "LastPrice";
-        body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
+        body.stopLossTriggerPrice = formatPrice(stop);
         //body.stopLossLimitPrice = formatPrice(stop);
       }
+
       logInfo("openMarketOrder body: ", body);
       if (body.quantity > 0) {
         return await Order.executeOrder(body);
@@ -140,20 +140,15 @@ class OrderController {
         quantity,
       };
 
-      const space = 0;
-      const takeProfitTriggerPrice = isLong ? target - space : target + space;
-      //const takeProfitTriggerPrice = entry;
-      const stopLossTriggerPrice = isLong ? stop + space : stop - space;
-
       if (target !== undefined && !isNaN(parseFloat(target))) {
         body.takeProfitTriggerBy = "LastPrice";
-        body.takeProfitTriggerPrice = formatPrice(takeProfitTriggerPrice);
+        body.takeProfitTriggerPrice = formatPrice(target);
         //body.takeProfitLimitPrice = formatPrice(target);
       }
 
       if (stop !== undefined && !isNaN(parseFloat(stop))) {
         body.stopLossTriggerBy = "LastPrice";
-        body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
+        body.stopLossTriggerPrice = formatPrice(stop);
         //body.stopLossLimitPrice = formatPrice(stop);
       }
       logInfo("openMarketOrderScanner body: ", body);
@@ -182,36 +177,32 @@ class OrderController {
 
       const isLong = action === "long";
       const side = isLong ? "Bid" : "Ask";
-      const entryPrice = parseFloat(entry);
-      const qnt = formatQuantity(Math.floor(volume / entryPrice / stepSize_quantity) * stepSize_quantity);
-      const space = tickSize * tickSizeMultiply;
-      const entryTriggerPrice = isLong ? entry - space : entry + space;
+
+      const qtt = formatQuantity(Math.floor(volume / parseFloat(entry) / stepSize_quantity) * stepSize_quantity);
+      const entryPrice = formatPrice(entry);
 
       const body = {
         symbol,
         orderType: "Limit",
         side,
-        price: formatPrice(entry),
+        price: entryPrice,
         postOnly: false,
         reduceOnly: false,
         timeInForce: "GTC",
         triggerBy: "LastPrice",
-        triggerPrice: formatPrice(entryTriggerPrice),
-        triggerQuantity: qnt,
+        triggerPrice: entryPrice,
+        triggerQuantity: qtt,
       };
-
-      const takeProfitTriggerPrice = isLong ? target - space : target + space;
-      const stopLossTriggerPrice = isLong ? stop + space : stop - space;
 
       if (target !== undefined && !isNaN(parseFloat(target))) {
         body.takeProfitTriggerBy = "LastPrice";
-        body.takeProfitTriggerPrice = formatPrice(takeProfitTriggerPrice);
+        body.takeProfitTriggerPrice = formatPrice(target);
         //body.takeProfitLimitPrice =  formatPrice(target);
       }
 
       if (stop !== undefined && !isNaN(parseFloat(stop))) {
         body.stopLossTriggerBy = "LastPrice";
-        body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
+        body.stopLossTriggerPrice = formatPrice(stop);
         //body.stopLossLimitPrice = formatPrice(stop);
       }
 
@@ -242,8 +233,8 @@ class OrderController {
       const side = isLong ? "Bid" : "Ask";
       const entryPrice = parseFloat(entry);
       const qnt = formatQuantity(Math.floor(volume / entryPrice / stepSize_quantity) * stepSize_quantity);
-      const space = tickSize * tickSizeMultiply;
-      const entryTriggerPrice = isLong ? entry - space : entry + space;
+      //const space = tickSize * tickSizeMultiply;
+      //const entryTriggerPrice = isLong ? entry - space : entry + space;
 
       const body = {
         symbol,
@@ -252,22 +243,25 @@ class OrderController {
         reduceOnly: false,
         timeInForce: "GTC",
         triggerBy: "LastPrice",
-        triggerPrice: formatPrice(entryTriggerPrice),
+        //triggerPrice: formatPrice(entryTriggerPrice),
+        triggerPrice: formatPrice(entry),
         triggerQuantity: qnt,
       };
 
-      const takeProfitTriggerPrice = isLong ? target - space : target + space;
-      const stopLossTriggerPrice = isLong ? stop + space : stop - space;
+      // const takeProfitTriggerPrice = isLong ? target - space : target + space;
+      // const stopLossTriggerPrice = isLong ? stop + space : stop - space;
 
       if (target !== undefined && !isNaN(parseFloat(target))) {
         body.takeProfitTriggerBy = "LastPrice";
-        body.takeProfitTriggerPrice = formatPrice(takeProfitTriggerPrice);
+        //body.takeProfitTriggerPrice = formatPrice(takeProfitTriggerPrice);
+        body.takeProfitTriggerPrice = formatPrice(target);
         //body.takeProfitLimitPrice =  formatPrice(target);
       }
 
       if (stop !== undefined && !isNaN(parseFloat(stop))) {
         body.stopLossTriggerBy = "LastPrice";
-        body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
+        //body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
+        body.stopLossTriggerPrice = formatPrice(stop);
         //body.stopLossLimitPrice = formatPrice(stop);
       }
 
