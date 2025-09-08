@@ -56,22 +56,24 @@ class MidCandle {
 
   async _getMarketsData(markets) {
     const marketsData = [];
-
+    const timeframe = this.timeframe === "10m" ? "5m" : this.timeframe;
     try {
       for (const market of markets) {
-        const candles = await Markets.getKLines(market.symbol, this.timeframe, 2);
-        if (!candles[1]) {
-          console.log(`🔸 No data for ${market.symbol} candles:`, candles);
+        const candles = await Markets.getKLines(market.symbol, timeframe, 2);
+        if (!candles[1] || !candles[0]) {
+          console.log(`🔸 Missing candle data for ${market.symbol}.`, candles);
           continue;
         }
         const marketPrice = parseFloat(candles[1].close);
 
-        const orderProperties = this._calculateOrderProperties(
-          marketPrice,
-          parseFloat(candles[1].high),
-          parseFloat(candles[1].low),
-          market.symbol
-        );
+        let high = parseFloat(candles[1].high);
+        let low = parseFloat(candles[1].low);
+        if (this.timeframe === "10m") {
+          high = Math.max(parseFloat(candles[0].high), parseFloat(candles[1].high));
+          low = Math.min(parseFloat(candles[0].low), parseFloat(candles[1].low));
+        }
+
+        const orderProperties = this._calculateOrderProperties(marketPrice, high, low, market.symbol);
 
         const d = new Date(candles[1].start);
         d.setHours(d.getHours() - 3);
@@ -98,7 +100,7 @@ class MidCandle {
           symbol: market.symbol,
           market,
           marketPrice,
-          candle: candles[1],
+          candle: candles,
           oldProps,
           ...orderProperties,
         };

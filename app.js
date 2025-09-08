@@ -45,6 +45,9 @@ if (tradingStrategy === "MIDCANDLE") {
     case "5M":
       candleTime = 300_000;
       break;
+    case "10M":
+      candleTime = 600_000;
+      break;
     case "15M":
       candleTime = 900_000;
       break;
@@ -60,7 +63,7 @@ if (tradingStrategy === "MIDCANDLE") {
     const result = await midCandleStrategy.run();
     if (result === "stop") return;
 
-    const waitTime = candleTime + 1000 - ((Date.now() + timeDiff) % candleTime);
+    const waitTime = candleTime + 500 - ((Date.now() + timeDiff) % candleTime);
     setTimeout(runMidCandleStrategy, waitTime);
     console.log(`⏳ Waiting next ${timeframe} candle...`);
   }

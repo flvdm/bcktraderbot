@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.11] - 2025/09/08
+
+- Added special case for 10m Midcancle strategy.
+
 ## [1.1.10] - 2025/09/08
 
 - Added Multiplier parameter.
