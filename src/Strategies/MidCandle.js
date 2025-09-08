@@ -34,8 +34,8 @@ class MidCandle {
     logInfo("MidCandle properties", this);
   }
 
-  async _cancelEntryOrders() {
-    for (const symbol of this.authorizedMarkets) {
+  async _cancelEntryOrders(cancelMarkets) {
+    for (const symbol of cancelMarkets) {
       const orders = await OrderController.getOpenOrders(symbol);
       for (const order of orders) {
         if (order.reduceOnly == false) {
@@ -235,7 +235,8 @@ class MidCandle {
       console.log("\n📣 Previous candle closed. Running a new cicle of analysis.\n");
 
       //Cancel unfilled entry orders
-      await this._cancelEntryOrders();
+      const cancelMarkets = this.authorizedMarkets.length === 0 ? AccountStore.markets : this.authorizedMarkets;
+      await this._cancelEntryOrders(cancelMarkets);
 
       //Check if entry volume is set
       if (Number.isNaN(this.maxOrderVolume)) {

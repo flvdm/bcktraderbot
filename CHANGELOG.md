@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.8] - 2025/09/08
+
+- Fixed cancel orders bug when empty Authorized Markets in Midcandle strategy.
+
 ## [1.1.7] - 2025/09/08
 
 - Fixed low balance verification in Midcandle strategy.
