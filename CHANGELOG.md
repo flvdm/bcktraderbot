@@ -1,5 +1,10 @@
 # Changelog 📋
 
+## [1.1.7] - 2025/09/08
+
+- Fixed low balance verification in Midcandle strategy.
+- Option to select between lastprice or markprice in some orders.
+
 ## [1.1.6] - 2025/09/07
 
 - Changes to how booster markerts works in Midcandle strategy.

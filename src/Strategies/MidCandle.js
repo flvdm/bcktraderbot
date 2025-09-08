@@ -244,15 +244,20 @@ class MidCandle {
       }
 
       //Check sufficient account balance for new orders
+      const positions = await AccountStore.getOpenFuturesPositions();
       const capitalAvailable = await AccountStore.getAvailableCapital();
       logInfo("capitalAvailable", capitalAvailable);
       if (capitalAvailable < this.maxOrderVolume) {
-        console.log("⚠️ Insuficient balance to open new orders. Stoping the bot.");
-        return "stop";
+        if (positions.length === 0) {
+          console.log("⚠️ Insuficient balance to open new orders. Stoping the bot.");
+          return "stop";
+        } else {
+          console.log("🔺 Low balance due openned positions. Skipping this candle...");
+          return;
+        }
       }
 
       //Retrieve openned positions and check max limits
-      const positions = await AccountStore.getOpenFuturesPositions();
       const inPositionMarkets = positions.map((el) => el.symbol);
       logInfo("inPositionMarkets", inPositionMarkets);
       if (inPositionMarkets.length >= this.maxPositions) {

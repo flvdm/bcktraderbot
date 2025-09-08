@@ -185,6 +185,13 @@ class OrderController {
       entryTriggerPrice = formatPrice(entryTriggerPrice);
       entryTriggerPrice = formatPrice(entry);
 
+      let inTriggerBy = process.env.IN_TRIGGER_BY;
+      if (inTriggerBy) {
+        inTriggerBy = inTriggerBy.toLowerCase() === "markprice" ? "MarkPrice" : "LastPrice";
+      } else {
+        inTriggerBy = "LastPrice";
+      }
+
       const body = {
         symbol,
         orderType: "Limit",
@@ -193,19 +200,26 @@ class OrderController {
         postOnly: false,
         reduceOnly: false,
         timeInForce: "GTC",
-        triggerBy: "LastPrice",
+        triggerBy: inTriggerBy,
         triggerPrice: entryTriggerPrice,
         triggerQuantity: qtt,
       };
 
+      let outTriggerBy = process.env.OUT_TRIGGER_BY;
+      if (outTriggerBy) {
+        outTriggerBy = outTriggerBy.toLowerCase() === "markprice" ? "MarkPrice" : "LastPrice";
+      } else {
+        outTriggerBy = "LastPrice";
+      }
+
       if (target !== undefined && !isNaN(parseFloat(target))) {
-        body.takeProfitTriggerBy = "LastPrice";
+        body.takeProfitTriggerBy = outTriggerBy;
         body.takeProfitTriggerPrice = formatPrice(target);
         //body.takeProfitLimitPrice =  formatPrice(target);
       }
 
       if (stop !== undefined && !isNaN(parseFloat(stop))) {
-        body.stopLossTriggerBy = "LastPrice";
+        body.stopLossTriggerBy = outTriggerBy;
         body.stopLossTriggerPrice = formatPrice(stop);
         //body.stopLossLimitPrice = formatPrice(stop);
       }
