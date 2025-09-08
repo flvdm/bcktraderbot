@@ -25,11 +25,19 @@ class MidCandle {
     this.minPriceVariation = Number(String(process.env.MIN_PERCENT_VARIATION).replace("%", "")) / 100.0;
     this.entryDistanceLimiter = parseFloat(process.env.FLOAT_PARAM4);
 
-    //modiifiers
+    //modifiers
     this.timeframe = String(process.env.TIMEFRAME).toLowerCase().trim();
     this.againstMovement = process.env.BOOLEAN_PARAM1?.toLowerCase() === "true";
-    this.entryBoosterMultiplier = Number(String(process.env.ENTRY_BOOSTER).replace("x", "")) || 1;
+    this.entryBoosterMultiplier = Number(String(process.env.BOOSTER_MULTIPLIER).replace("x", "")) || 1;
     this.boosterMarkets = process.env.BOOSTER_MARKETS ? JSON.parse(process.env.BOOSTER_MARKETS) : [];
+
+    this.multiplier = Number(String(process.env.MULTIPLIER).replace("x", "")) || 1;
+    if (this.multiplier > 1) {
+      this.maxOrderVolume *= this.multiplier;
+      this.minOrderVolume *= this.multiplier;
+      this.lossAmount *= this.multiplier;
+      this.profitAmount *= this.multiplier;
+    }
 
     logInfo("MidCandle properties", this);
   }

@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.10] - 2025/09/08
+
+- Added Multiplier parameter.
+
 ## [1.1.9] - 2025/09/08
 
 - Fixed another cancel orders bug when empty Authorized Markets in Midcandle strategy.
