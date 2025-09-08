@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.9] - 2025/09/08
+
+- Fixed another cancel orders bug when empty Authorized Markets in Midcandle strategy.
+
 ## [1.1.8] - 2025/09/08
 
 - Fixed cancel orders bug when empty Authorized Markets in Midcandle strategy.

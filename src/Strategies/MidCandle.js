@@ -235,7 +235,10 @@ class MidCandle {
       console.log("\n📣 Previous candle closed. Running a new cicle of analysis.\n");
 
       //Cancel unfilled entry orders
-      const cancelMarkets = this.authorizedMarkets.length === 0 ? AccountStore.markets : this.authorizedMarkets;
+      let cancelMarkets = this.authorizedMarkets;
+      if (this.authorizedMarkets.length === 0) {
+        cancelMarkets = AccountStore.markets.map((el) => el.symbol);
+      }
       await this._cancelEntryOrders(cancelMarkets);
 
       //Check if entry volume is set
