@@ -2,7 +2,7 @@ import OrderController from "../Controllers/OrderController.js";
 import AccountStore from "../Store/AccountStore.js";
 import Markets from "../Backpack/Markets.js";
 import Utils from "../Utils/Utils.js";
-import { logInfo } from "../Utils/logger.js";
+import { logError, logInfo } from "../Utils/logger.js";
 
 class Scanner {
   constructor() {
@@ -129,6 +129,7 @@ class Scanner {
         }
         return isNew;
       });
+      logInfo("newPerpMarkets", newPerpMarkets);
       if (newPerpMarkets.length > 0) {
         console.log("🌟 New PREP market(s) FOUND!", newPerpMarkets);
         await Utils.saveDataToFile(this.knownMarkets, "knownPerpMarkets.json");
@@ -159,6 +160,7 @@ class Scanner {
         }
         return isNew;
       });
+      logInfo("newSpotMarkets", newSpotMarkets);
       if (newSpotMarkets.length > 0) {
         console.log("🌟 New SPOT market(s) FOUND!", newSpotMarkets);
         await Utils.saveDataToFile(this.knownSpotMarkets, "knownSpotMarkets.json");
@@ -172,6 +174,7 @@ class Scanner {
       // newly found markets routines  //
       //                               //
       //= = = = = = = = = = = = = = = =//
+      logInfo("this.newMarkets", this.newMarkets);
       if (this.newMarkets.length > 0) {
         //
         // First 50 routine: try to be one of 50 to trade the new token
@@ -186,9 +189,11 @@ class Scanner {
             // newMarket.price = marketPrice;
 
             const candles = await Markets.getKLines(newMarket.symbol, "1m", 3);
+            logInfo(newMarket.symbol + " 1m candles", candles);
             let marketPrice = null;
             if (candles) marketPrice = candles[2]?.close || candles[1]?.close || candles[0]?.close || null;
             newMarket.price = parseFloat(marketPrice);
+            logInfo(newMarket.symbol + " marketPrice", marketPrice);
             console.log(newMarket.symbol, newMarket.price);
 
             //infer props
@@ -207,6 +212,8 @@ class Scanner {
 
             newMarket.attemptsLeft = 3;
             first50Length += 1;
+            logInfo("newMarket", newMarket);
+            logInfo("first50Length", first50Length);
           }
         }
         if (first50Length > 0) {
