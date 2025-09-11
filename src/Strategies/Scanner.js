@@ -213,9 +213,9 @@ class Scanner {
             newMarket.attemptsLeft = 3;
             first50Length += 1;
             logInfo("newMarket", newMarket);
-            logInfo("first50Length", first50Length);
           }
         }
+        logInfo("first50Length", first50Length);
         if (first50Length > 0) {
           let finished = 0;
           const spotVolumes = ["15", "7", "3"];
@@ -226,14 +226,18 @@ class Scanner {
 
             if (newMarket.attemptsLeft > 0 && newMarket.phase === "first50") {
               if (newMarket.type === "perp") {
+                logInfo(newMarket.symbol + " inside perp attempt.");
                 newMarket.attemptsLeft -= 1;
                 const response = await this._doPerpTrade(newMarket, "long");
+                logInfo(newMarket.symbol + " doPerpTrade response", response);
                 if (typeof response === "object" && response.status === "Filled") {
                   Utils.notify(`✅ Successfully traded ${newMarket.symbol}`);
                   newMarket.phase = "lucky777";
+                  logInfo(newMarket.symbol + " successfully traded. Switching to lucky777 phase.");
                   // close successful perp trade
                   setTimeout(() => {
                     this._doPerpTrade(newMarket, "short");
+                    logInfo(newMarket.symbol + " closing the fisrt50 position.");
                   }, 5000);
                   finished += 1;
                 } else if (
@@ -243,6 +247,7 @@ class Scanner {
                 ) {
                   //'Market orders must specify a positive `quantity`' //executedQuantity: '100'
                   console.log(`${newMarket.symbol} trade failed. Trying again with more quantity...`);
+                  logInfo(newMarket.symbol + " trade failed. Trying again with more quantity...");
                   newMarket.quantity *= 10;
                 } else {
                   const msg = `❌ Failed to trade ${newMarket.symbol}. Reason: ${response?.message}`;
@@ -254,18 +259,22 @@ class Scanner {
                 }
               } //
               else if (newMarket.type === "spot") {
+                logInfo(newMarket.symbol + " inside spot attempt.");
                 newMarket.attemptsLeft -= 1;
                 const volume = spotVolumes[newMarket.attemptsLeft];
                 const response = await this._doSpotTrade("Bid", newMarket, volume);
+                logInfo(newMarket.symbol + " doSpotTrade response", response);
                 if (typeof response === "object" && response.status === "Filled") {
                   Utils.notify(`✅ Successfully bought $${volume} of ${newMarket.symbol}`);
                   newMarket.volume = volume;
                   newMarket.phase = "clockingin";
                   newMarket.clockinNextTime = Date.now() + 120000;
                   console.log(newMarket.symbol + " set to 'clockingin' phase.");
+                  logInfo(newMarket.symbol + " successfully traded. Switching to clockingin phase.");
                   // close successful spot trade
                   setTimeout(() => {
                     this._doSpotTrade("Ask", newMarket, response.executedQuoteQuantity * 0.999);
+                    logInfo(newMarket.symbol + " closing the fisrt50 position.");
                   }, 5000);
                   finished += 1;
                 } //
@@ -274,6 +283,7 @@ class Scanner {
                   response?.message === "Quantity is below the minimum allowed value"
                 ) {
                   console.log("Trade failed. Trying again with more volume...");
+                  logInfo(newMarket.symbol + "Trade failed. Trying again with more volume...");
                 } else {
                   const msg = `❌ Failed to trade ${newMarket.symbol}. Reason: ${response?.message}`;
                   Utils.notify(msg);
@@ -285,6 +295,7 @@ class Scanner {
               }
 
               if (finished >= first50Length) {
+                logInfo("Finished to First50 routine for all newMarkets.", finished);
                 break;
               }
             }
@@ -292,7 +303,8 @@ class Scanner {
           //remove the invalid ones from the list
           for (let i = this.newMarkets.length - 1; i >= 0; i--) {
             if (this.newMarkets[i].phase === "invalid") {
-              this.newMarkets.splice(i, 1);
+              let removed = this.newMarkets.splice(i, 1);
+              logInfo("Removing the invalided newMarket: ", removed);
             }
           }
         }
@@ -305,6 +317,7 @@ class Scanner {
           //
           if (newMarket.phase === "lucky777") {
             console.log("2️⃣  Executing 'lucky777' routine for " + newMarket.symbol);
+            logInfo("Executing 'lucky777' routine for " + newMarket.symbol);
             if (newMarket.type === "perp") {
               await new Promise((resolve) => setTimeout(resolve, 2000));
               await OrderController.cancelAllOrders(newMarket.symbol);
