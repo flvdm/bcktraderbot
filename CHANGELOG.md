@@ -1,5 +1,10 @@
 # Changelog 📋
 
+## [1.1.12] - 2025/09/11
+
+- Huge code revision in Scanner strategy.
+- Some fixes in order related codebase.
+
 ## [1.1.11] - 2025/09/08
 
 - Added special case for 10m Midcancle strategy.

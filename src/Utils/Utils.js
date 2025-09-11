@@ -87,7 +87,11 @@ class Utils {
       }
     }
     const prcStep = 1 / 10 ** prcHouses;
-    const qtdStep = 1 / 10 ** qtdHouses;
+    let n = qtdHouses;
+    if (qtt >= 10) {
+      n = n - Math.floor(Math.log10(qtt));
+    }
+    const qtdStep = 1 / 10 ** n;
 
     return {
       prcHouses,

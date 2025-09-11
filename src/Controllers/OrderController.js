@@ -46,6 +46,7 @@ class OrderController {
     decimal_price,
     stepSize_quantity,
     tickSize,
+    quantity,
   }) {
     try {
       const isLong = action === "long";
@@ -55,9 +56,7 @@ class OrderController {
       const formatQuantity = (value) => parseFloat(value).toFixed(decimal_quantity).toString();
 
       const entryPrice = parseFloat(entry);
-
-      const quantity = formatQuantity(Math.floor(volume / entryPrice / stepSize_quantity) * stepSize_quantity);
-      const price = formatPrice(entryPrice);
+      if (!quantity) quantity = formatQuantity(Math.floor(volume / entryPrice / stepSize_quantity) * stepSize_quantity);
 
       const body = {
         symbol: symbol,
@@ -71,88 +70,28 @@ class OrderController {
       // const takeProfitTriggerPrice = isLong ? target - space : target + space;
       // const stopLossTriggerPrice = isLong ? stop + space : stop - space;
 
+      let outTriggerBy = process.env.OUT_TRIGGER_BY;
+      if (outTriggerBy) {
+        outTriggerBy = outTriggerBy.toLowerCase() === "markprice" ? "MarkPrice" : "LastPrice";
+      } else {
+        outTriggerBy = "LastPrice";
+      }
+
+      const outMakerOrder = process.env.OUT_ORDER_TYPE === "limit" ? true : false;
+
       if (target !== undefined && !isNaN(parseFloat(target))) {
-        body.takeProfitTriggerBy = "LastPrice";
+        body.takeProfitTriggerBy = outTriggerBy;
         body.takeProfitTriggerPrice = formatPrice(target);
-        //body.takeProfitLimitPrice = formatPrice(target);
+        if (outMakerOrder) body.takeProfitLimitPrice = formatPrice(target);
       }
 
       if (stop !== undefined && !isNaN(parseFloat(stop))) {
-        body.stopLossTriggerBy = "LastPrice";
+        body.stopLossTriggerBy = outTriggerBy;
         body.stopLossTriggerPrice = formatPrice(stop);
-        //body.stopLossLimitPrice = formatPrice(stop);
+        if (outMakerOrder) body.stopLossLimitPrice = formatPrice(stop);
       }
 
       logInfo("openMarketOrder body: ", body);
-      if (body.quantity > 0) {
-        return await Order.executeOrder(body);
-      }
-    } catch (error) {
-      console.log("❌ openMarketOrder ERROR", error);
-    }
-  }
-
-  async openMarketOrderScanner({
-    entry,
-    stop,
-    target,
-    action,
-    symbol,
-    volume,
-    decimal_quantity,
-    decimal_price,
-    stepSize_quantity,
-    tickSize,
-  }) {
-    try {
-      const isLong = action === "long";
-      const side = isLong ? "Bid" : "Ask";
-      const entryPrice = parseFloat(entry);
-      const qtt = volume / entryPrice;
-
-      let qtdHouses = 5;
-      for (let i = 0; i < 5; i++) {
-        if ((qtt * 10 ** i).toFixed() >= 1) {
-          qtdHouses = i;
-          break;
-        }
-      }
-
-      let prcHouses = 6;
-      for (let i = 1; i < 6; i++) {
-        if ((entryPrice * 10 ** i).toFixed() >= 1000) {
-          prcHouses = i;
-          break;
-        }
-      }
-
-      const formatPrice = (value) => parseFloat(value).toFixed(prcHouses).toString();
-      const formatQuantity = (value) => parseFloat(value).toFixed(qtdHouses).toString();
-
-      const quantity = formatQuantity(qtt);
-      const price = formatPrice(entryPrice);
-
-      const body = {
-        symbol: symbol,
-        side,
-        orderType: "Market",
-        clientId: Math.floor(Math.random() * 1000000),
-        quantity,
-      };
-
-      if (target !== undefined && !isNaN(parseFloat(target))) {
-        body.takeProfitTriggerBy = "LastPrice";
-        body.takeProfitTriggerPrice = formatPrice(target);
-        //body.takeProfitLimitPrice = formatPrice(target);
-      }
-
-      if (stop !== undefined && !isNaN(parseFloat(stop))) {
-        body.stopLossTriggerBy = "LastPrice";
-        body.stopLossTriggerPrice = formatPrice(stop);
-        //body.stopLossLimitPrice = formatPrice(stop);
-      }
-      logInfo("openMarketOrderScanner body: ", body);
-
       return await Order.executeOrder(body);
     } catch (error) {
       console.log("❌ openMarketOrder ERROR", error);
@@ -170,6 +109,7 @@ class OrderController {
     decimal_price,
     stepSize_quantity,
     tickSize,
+    quantity,
   }) {
     try {
       const formatPrice = (value) => parseFloat(value).toFixed(decimal_price).toString();
@@ -178,7 +118,8 @@ class OrderController {
       const isLong = action === "long";
       const side = isLong ? "Bid" : "Ask";
 
-      const qtt = formatQuantity(Math.floor(volume / parseFloat(entry) / stepSize_quantity) * stepSize_quantity);
+      if (!quantity)
+        quantity = formatQuantity(Math.floor(volume / parseFloat(entry) / stepSize_quantity) * stepSize_quantity);
       const entryPrice = formatPrice(entry);
 
       let entryTriggerPrice = isLong ? entry - tickSize : entry + tickSize;
@@ -202,7 +143,7 @@ class OrderController {
         timeInForce: "GTC",
         triggerBy: inTriggerBy,
         triggerPrice: entryTriggerPrice,
-        triggerQuantity: qtt,
+        triggerQuantity: quantity,
       };
 
       let outTriggerBy = process.env.OUT_TRIGGER_BY;
@@ -212,16 +153,18 @@ class OrderController {
         outTriggerBy = "LastPrice";
       }
 
+      const outMakerOrder = process.env.OUT_ORDER_TYPE === "limit" ? true : false;
+
       if (target !== undefined && !isNaN(parseFloat(target))) {
         body.takeProfitTriggerBy = outTriggerBy;
         body.takeProfitTriggerPrice = formatPrice(target);
-        //body.takeProfitLimitPrice =  formatPrice(target);
+        if (outMakerOrder) body.takeProfitLimitPrice = formatPrice(target);
       }
 
       if (stop !== undefined && !isNaN(parseFloat(stop))) {
         body.stopLossTriggerBy = outTriggerBy;
         body.stopLossTriggerPrice = formatPrice(stop);
-        //body.stopLossLimitPrice = formatPrice(stop);
+        if (outMakerOrder) body.stopLossLimitPrice = formatPrice(stop);
       }
 
       logInfo("createLimitTriggerOrder body: ", body);
@@ -242,6 +185,7 @@ class OrderController {
     decimal_price,
     stepSize_quantity,
     tickSize,
+    quantity,
   }) {
     try {
       const formatPrice = (value) => parseFloat(value).toFixed(decimal_price).toString();
@@ -250,7 +194,7 @@ class OrderController {
       const isLong = action === "long";
       const side = isLong ? "Bid" : "Ask";
       const entryPrice = parseFloat(entry);
-      const qnt = formatQuantity(Math.floor(volume / entryPrice / stepSize_quantity) * stepSize_quantity);
+      if (!quantity) quantity = formatQuantity(Math.floor(volume / entryPrice / stepSize_quantity) * stepSize_quantity);
       //const space = tickSize * tickSizeMultiply;
       //const entryTriggerPrice = isLong ? entry - space : entry + space;
 
@@ -263,24 +207,33 @@ class OrderController {
         triggerBy: "LastPrice",
         //triggerPrice: formatPrice(entryTriggerPrice),
         triggerPrice: formatPrice(entry),
-        triggerQuantity: qnt,
+        triggerQuantity: quantity,
       };
 
       // const takeProfitTriggerPrice = isLong ? target - space : target + space;
       // const stopLossTriggerPrice = isLong ? stop + space : stop - space;
 
+      let outTriggerBy = process.env.OUT_TRIGGER_BY;
+      if (outTriggerBy) {
+        outTriggerBy = outTriggerBy.toLowerCase() === "markprice" ? "MarkPrice" : "LastPrice";
+      } else {
+        outTriggerBy = "LastPrice";
+      }
+
+      const outMakerOrder = process.env.OUT_ORDER_TYPE === "limit" ? true : false;
+
       if (target !== undefined && !isNaN(parseFloat(target))) {
-        body.takeProfitTriggerBy = "LastPrice";
+        body.takeProfitTriggerBy = outTriggerBy;
         //body.takeProfitTriggerPrice = formatPrice(takeProfitTriggerPrice);
         body.takeProfitTriggerPrice = formatPrice(target);
-        //body.takeProfitLimitPrice =  formatPrice(target);
+        if (outMakerOrder) body.takeProfitLimitPrice = formatPrice(target);
       }
 
       if (stop !== undefined && !isNaN(parseFloat(stop))) {
-        body.stopLossTriggerBy = "LastPrice";
+        body.stopLossTriggerBy = outTriggerBy;
         //body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice);
         body.stopLossTriggerPrice = formatPrice(stop);
-        //body.stopLossLimitPrice = formatPrice(stop);
+        if (outMakerOrder) body.stopLossLimitPrice = formatPrice(stop);
       }
 
       logInfo("createMarketTriggerOrder body: ", body);
@@ -331,10 +284,12 @@ class OrderController {
         const isLong = order.action === "long";
         const side = isLong ? "Bid" : "Ask";
         const entryPrice = parseFloat(order.entry);
-        const qnt = formatQuantity(
-          Math.floor(order.volume / entryPrice / order.stepSize_quantity) * order.stepSize_quantity,
-          order.decimal_quantity
-        );
+        const qnt =
+          formatQuantity(order.quantity, order.decimal_quantity) ||
+          formatQuantity(
+            Math.floor(order.volume / entryPrice / order.stepSize_quantity) * order.stepSize_quantity,
+            order.decimal_quantity
+          );
         const space = order.tickSize * 1;
         const entryTriggerPrice = isLong ? order.entry - space : order.entry + space;
 
@@ -352,16 +307,24 @@ class OrderController {
         const takeProfitTriggerPrice = isLong ? order.target - space : order.target + space;
         const stopLossTriggerPrice = isLong ? order.stop + space : order.stop - space;
 
+        let outTriggerBy = process.env.OUT_TRIGGER_BY;
+        if (outTriggerBy) {
+          outTriggerBy = outTriggerBy.toLowerCase() === "markprice" ? "MarkPrice" : "LastPrice";
+        } else {
+          outTriggerBy = "LastPrice";
+        }
+        const outMakerOrder = process.env.OUT_ORDER_TYPE === "limit" ? true : false;
+
         if (order.target !== undefined && !isNaN(order.target)) {
-          body.takeProfitTriggerBy = "LastPrice";
+          body.takeProfitTriggerBy = outTriggerBy;
           body.takeProfitTriggerPrice = formatPrice(takeProfitTriggerPrice, order.decimal_price);
-          //body.takeProfitLimitPrice =  formatPrice(order.target);
+          if (outMakerOrder) body.takeProfitLimitPrice = formatPrice(order.target);
         }
 
         if (order.stop !== undefined && !isNaN(order.stop)) {
-          body.stopLossTriggerBy = "LastPrice";
+          body.stopLossTriggerBy = outTriggerBy;
           body.stopLossTriggerPrice = formatPrice(stopLossTriggerPrice, order.decimal_price);
-          //body.stopLossLimitPrice = formatPrice(order.stop);
+          if (outMakerOrder) body.stopLossLimitPrice = formatPrice(order.stop);
         }
 
         formatedOrders.push(body);
@@ -373,7 +336,7 @@ class OrderController {
     }
   }
 
-  async openOrderSpot({ side, symbol, volume, quantity }) {
+  async openOrderSpot({ side, symbol, volume, quantity, decimal_quantity, decimal_price }) {
     try {
       const body = {
         symbol: symbol,
@@ -384,14 +347,13 @@ class OrderController {
       };
 
       if (quantity) {
-        body.quantity = quantity;
+        body.quantity = decimal_quantity ? parseFloat(quantity).toFixed(decimal_quantity).toString() : quantity;
       } else {
-        body.quoteQuantity = volume;
+        body.quoteQuantity = decimal_price ? parseFloat(volume).toFixed(decimal_price).toString() : decimal_price;
       }
 
       logInfo("openOrderSpot body: ", body);
-      const resp = await Order.executeOrder(body);
-      return resp;
+      return await Order.executeOrder(body);
     } catch (error) {
       console.log(error);
     }

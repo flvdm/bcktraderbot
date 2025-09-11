@@ -1,5 +1,6 @@
 import axios from "axios";
 import { auth } from "./Authentication.js";
+import { logError, logInfo } from "../Utils/logger.js";
 
 class Order {
   async getOpenOrder(symbol, orderId, clientId) {
@@ -34,6 +35,7 @@ class Order {
       return response.data;
     } catch (error) {
       console.error("getOpenOrder ERROR", error.response?.data || error.message);
+      logError("getOpenOrder ERROR", error);
       return null;
     }
   }
@@ -59,6 +61,7 @@ class Order {
       return response.data;
     } catch (error) {
       console.error("getOpenOrders ERROR", error.response?.data || error.message);
+      logError("getOpenOrders ERROR", error);
       return null;
     }
   }
@@ -76,10 +79,13 @@ class Order {
         headers,
       });
       console.log("✅ executeOrder Success!", data.symbol);
+      logInfo("executeOrder Success", data);
       return data;
     } catch (error) {
-      console.error("❌ executeOrder ERROR", error.response?.data || error.message);
-      return null;
+      const errorMsg = error.response?.data || error.message;
+      console.error("❌ executeOrder ERROR", errorMsg);
+      logError("executeOrder ERROR", errorMsg, error);
+      return errorMsg;
     }
   }
 
@@ -95,10 +101,12 @@ class Order {
       const { data } = await axios.post(`${process.env.API_URL}/api/v1/orders`, body, {
         headers,
       });
-      console.log("✅ executeOrdersBatch Success!", body.symbol);
+      console.log("✅ executeOrdersBatch Success!");
+      logInfo("executeOrdersBatch Success", data);
       return data;
     } catch (error) {
       console.error("❌ executeOrdersBatch ERROR", error.response?.data || error.message);
+      logError("executeOrdersBatch ERROR", error);
       return null;
     }
   }
@@ -130,6 +138,7 @@ class Order {
       return response.data;
     } catch (error) {
       console.error("cancelOpenOrder ERROR", error.response?.data || error.message);
+      logError("cancelOpenOrder ERROR", error);
       return null;
     }
   }
@@ -160,6 +169,7 @@ class Order {
       return response.data;
     } catch (error) {
       console.error("cancelOpenOrders ERROR", error.response?.data || error.message);
+      logError("cancelOpenOrders ERROR", error);
       return null;
     }
   }
