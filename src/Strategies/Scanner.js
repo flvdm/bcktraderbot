@@ -219,10 +219,12 @@ class Scanner {
         if (first50Length > 0) {
           let finished = 0;
           const spotVolumes = ["15", "7", "3"];
+          logInfo("Inside first50Length IF");
 
           for (let i = 0; i < 100; i++) {
             let j = i % first50Length;
             const newMarket = this.newMarkets[j];
+            logInfo("Inside the For Loop. i: " + i + "  j: " + j + "  this.newMarkets[j]:", this.newMarkets[j]);
 
             if (newMarket.attemptsLeft > 0 && newMarket.phase === "first50") {
               if (newMarket.type === "perp") {
