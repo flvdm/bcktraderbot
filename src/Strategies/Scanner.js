@@ -180,6 +180,7 @@ class Scanner {
         // First 50 routine: try to be one of 50 to trade the new token
         //
         let first50Length = 0;
+        const first50Markets = [];
         for (const newMarket of this.newMarkets) {
           if (newMarket.phase === "first50") {
             console.log("1️⃣  Executing 'first50' routine for " + newMarket.symbol);
@@ -211,20 +212,19 @@ class Scanner {
             newMarket.quantity = Math.pow(10, n);
 
             newMarket.attemptsLeft = 3;
-            first50Length += 1;
+            first50Markets.push(newMarket);
             logInfo("newMarket", newMarket);
           }
         }
+        first50Length = first50Markets.length;
         logInfo("first50Length", first50Length);
         if (first50Length > 0) {
           let finished = 0;
           const spotVolumes = ["15", "7", "3"];
-          logInfo("Inside first50Length IF");
 
           for (let i = 0; i < 100; i++) {
             let j = i % first50Length;
-            const newMarket = this.newMarkets[j];
-            logInfo("Inside the For Loop. i: " + i + "  j: " + j + "  this.newMarkets[j]:", this.newMarkets[j]);
+            const newMarket = first50Markets[j];
 
             if (newMarket.attemptsLeft > 0 && newMarket.phase === "first50") {
               if (newMarket.type === "perp") {
@@ -327,9 +327,11 @@ class Scanner {
               const markPrices = await Markets.getAllMarkPrices(newMarket.symbol);
               newMarket.price = parseFloat(markPrices[0].markPrice);
               const response = await this._doPerpTrade(newMarket, "long");
+              logInfo(newMarket.symbol + " lucky777 perpTrade response: ", response);
               if (typeof response === "object" && response.status === "Filled") {
                 setTimeout(() => {
                   this._doPerpTrade(newMarket, "short");
+                  logInfo(newMarket.symbol + " closing previous lucky777 trade.");
                 }, 5000);
               }
               await this._doBatchTrade(newMarket, 5);
@@ -338,11 +340,13 @@ class Scanner {
               const trades = candles ? Number(candles[0]?.trades) : null;
               if (trades) newMarket.totalTrades += trades;
               console.log(`${newMarket.symbol} total trades: `, newMarket.totalTrades);
+              logInfo(newMarket.symbol + " total trades.");
 
               if (newMarket.totalTrades > 777) {
                 newMarket.phase = "clockingin";
                 newMarket.clockinNextTime = Date.now() + 120000;
                 console.log(newMarket.symbol + " set to 'clockingin' phase.");
+                logInfo(newMarket.symbol + " change to 'clockingin' phase.");
               }
             }
           }
@@ -353,20 +357,25 @@ class Scanner {
           if (newMarket.phase === "clockingin") {
             if (Date.now() > newMarket.clockinNextTime) {
               console.log("3️⃣  Executing 'clocking in' routine for " + newMarket.symbol);
+              logInfo("Executing 'clocking in' routine for " + newMarket.symbol);
 
               if (newMarket.type === "perp") {
                 const response = await this._doPerpTrade(newMarket, "long");
+                logInfo(newMarket.symbol + "cloackingin PERP trade response: ", response);
                 if (typeof response === "object" && response.status === "Filled") {
                   setTimeout(() => {
                     this._doPerpTrade(newMarket, "short");
+                    logInfo(newMarket.symbol + "closing previous perp trade.");
                   }, 5000);
                 }
               } //
               else if (newMarket.type === "spot") {
                 const response = await this._doSpotTrade("Bid", newMarket, newMarket.volume);
+                logInfo(newMarket.symbol + "cloackingin SPOT trade response: ", response);
                 if (typeof response === "object" && response.status === "Filled") {
                   setTimeout(() => {
                     this._doSpotTrade("Ask", newMarket, response.executedQuoteQuantity * 0.999);
+                    logInfo(newMarket.symbol + "closing previous spot trade.");
                   }, 5000);
                 }
               }
@@ -380,6 +389,7 @@ class Scanner {
               if (newMarket.clockinOrdersSent >= 15) {
                 this.newMarkets.splice(i, 1);
                 console.log("❇️  Completed all routines for " + newMarket.symbol);
+                logInfo("Completed all routines for " + newMarket.symbol);
               }
             }
           }
