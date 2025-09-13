@@ -4,6 +4,7 @@ import Scanner from "./src/Strategies/Scanner.js";
 import AccountStore from "./src/Store/AccountStore.js";
 import System from "./src/Backpack/System.js";
 import { loggerInit, logInfo } from "./src/Utils/logger.js";
+import Helper from "./src/Strategies/Helpers/Helper.js";
 
 const envFile = process.env.ENV_FILE || ".env";
 dotenv.config({ path: envFile });
@@ -21,6 +22,7 @@ if (!initResult) {
   console.error("⚠️ Error getting Account stats. Stoping the bot.");
   process.exit(1);
 }
+Helper.init();
 
 const tradingStrategy = process.env.TRADING_STRATEGY.toUpperCase();
 const backpackTime = await System.getSystemTime();

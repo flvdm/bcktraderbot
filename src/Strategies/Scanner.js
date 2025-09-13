@@ -3,6 +3,7 @@ import AccountStore from "../Store/AccountStore.js";
 import Markets from "../Backpack/Markets.js";
 import Utils from "../Utils/Utils.js";
 import { logError, logInfo } from "../Utils/logger.js";
+import Helper from "./Helpers/Helper.js";
 
 class Scanner {
   constructor() {
@@ -199,7 +200,7 @@ class Scanner {
 
             //infer props
             if (newMarket.decimal_quantity === undefined || newMarket.stepSize_quantity === 0) {
-              const props = Utils.inferMarketProps(marketPrice);
+              const props = Helper.inferMarketProps(marketPrice);
               newMarket.decimal_quantity = props.qtdHouses;
               newMarket.decimal_price = props.prcHouses;
               newMarket.stepSize_quantity = props.qtdStep;

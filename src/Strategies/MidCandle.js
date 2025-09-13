@@ -3,6 +3,7 @@ import AccountStore from "../Store/AccountStore.js";
 import Markets from "../Backpack/Markets.js";
 import Utils from "../Utils/Utils.js";
 import { logInfo } from "../Utils/logger.js";
+import Helper from "./Helpers/Helper.js";
 
 class MidCandle {
   constructor() {
@@ -89,12 +90,13 @@ class MidCandle {
             tickSize: market.tickSize,
           };
           console.log("Props inference for: " + market.symbol);
-          const props = Utils.inferMarketProps(marketPrice);
+          const props = Helper.inferMarketProps(marketPrice);
           market.decimal_quantity = props.qtdHouses;
           market.decimal_price = props.prcHouses;
           market.stepSize_quantity = props.qtdStep;
           market.tickSize = props.prcStep;
         }
+        Helper.checkMarketPropsFix(market);
 
         const data = {
           symbol: market.symbol,

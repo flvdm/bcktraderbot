@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.13] - 2025/09/13
+
+- Added option to directly fix inconsistent market props values via env file.
+
 ## [1.1.12] - 2025/09/11
 
 - Huge code revision in Scanner strategy.
