@@ -62,6 +62,17 @@ class AccountStore {
     }
   }
 
+  async updateMarketsList() {
+    try {
+      const updatedMarkets = await this.getMarkets();
+      if (Array.isArray(updatedMarkets) && updatedMarkets.length > 0) {
+        this.markets = updatedMarkets;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   async getAvailableCapital() {
     const collateral = await Account.getCollateral();
     const capitalAvailable = parseFloat(collateral.netEquityAvailable) * this.leverage * 0.95;

@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.15] - 2025/09/26
+
+- Added MidCandle strategy ability to trade new markets that may appear.
+
 ## [1.1.14] - 2025/09/26
 
 - Scanner strategy: keep trying on "No liquidity" error.

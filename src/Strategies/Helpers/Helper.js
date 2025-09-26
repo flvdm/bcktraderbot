@@ -2,7 +2,7 @@ class Helper {
   init() {
     this.marketPropsFixes = process.env.MARKET_PROPS_FIX ? JSON.parse(process.env.MARKET_PROPS_FIX) : [];
     this.marketPropsFixesSymbols = this.marketPropsFixes.map((el) => el.s);
-    console.log(this.marketPropsFixes);
+    //console.log(this.marketPropsFixes);
   }
 
   checkMarketPropsFix(market) {

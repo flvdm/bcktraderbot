@@ -245,6 +245,7 @@ class MidCandle {
   async run() {
     try {
       console.log("\n📣 Previous candle closed. Running a new cicle of analysis.\n");
+      await AccountStore.updateMarketsList();
 
       //Cancel unfilled entry orders
       let cancelMarkets = this.authorizedMarkets;
