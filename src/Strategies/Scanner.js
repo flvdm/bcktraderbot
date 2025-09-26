@@ -206,6 +206,7 @@ class Scanner {
               newMarket.stepSize_quantity = props.qtdStep;
               newMarket.tickSize = props.prcStep;
             }
+            Helper.checkMarketPropsFix(newMarket);
 
             //estimated minimum quantity allowed
             const x = 1 / marketPrice;
@@ -243,7 +244,21 @@ class Scanner {
                     logInfo(newMarket.symbol + " closing the fisrt50 position.");
                   }, 5000);
                   finished += 1;
-                } else if (
+                } //
+                else if (response?.message === "No liquidity for market order") {
+                  newMarket.attemptsLeft = 0;
+                  if (!newMarket.notifiedNoLiquidity) {
+                    const msg = `⚠️ No liquidity for market order in ${newMarket.symbol}. Keep trying on the next candles....`;
+                    Utils.notify(msg);
+                    console.log(msg);
+                    newMarket.notifiedNoLiquidity = true;
+                  }
+                  logInfo(
+                    newMarket.symbol + "Trade failed: No liquidity for market order. Trying again next candle..."
+                  );
+                  finished += 1;
+                } //
+                else if (
                   newMarket.attemptsLeft > 0 &&
                   (response?.message === "Quantity is below the minimum allowed value" ||
                     response?.message === "Quantity decimal too long")
@@ -252,7 +267,8 @@ class Scanner {
                   console.log(`${newMarket.symbol} trade failed. Trying again with more quantity...`);
                   logInfo(newMarket.symbol + " trade failed. Trying again with more quantity...");
                   newMarket.quantity *= 10;
-                } else {
+                } //
+                else {
                   const msg = `❌ Failed to trade ${newMarket.symbol}. Reason: ${response?.message}`;
                   Utils.notify(msg);
                   console.log(msg);
@@ -281,13 +297,27 @@ class Scanner {
                   }, 5000);
                   finished += 1;
                 } //
+                else if (response?.message === "No liquidity for market order") {
+                  newMarket.attemptsLeft = 0;
+                  if (!newMarket.notifiedNoLiquidity) {
+                    const msg = `⚠️ No liquidity for market order in ${newMarket.symbol}. Keep trying on the next candles....`;
+                    Utils.notify(msg);
+                    console.log(msg);
+                    newMarket.notifiedNoLiquidity = true;
+                  }
+                  logInfo(
+                    newMarket.symbol + "Trade failed: No liquidity for market order. Trying again next candle..."
+                  );
+                  finished += 1;
+                } //
                 else if (
                   newMarket.attemptsLeft > 0 &&
                   response?.message === "Quantity is below the minimum allowed value"
                 ) {
                   console.log("Trade failed. Trying again with more volume...");
                   logInfo(newMarket.symbol + "Trade failed. Trying again with more volume...");
-                } else {
+                } //
+                else {
                   const msg = `❌ Failed to trade ${newMarket.symbol}. Reason: ${response?.message}`;
                   Utils.notify(msg);
                   console.log(msg);

@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.14] - 2025/09/26
+
+- Scanner strategy: keep trying on "No liquidity" error.
+
 ## [1.1.13] - 2025/09/13
 
 - Added option to directly fix inconsistent market props values via env file.
