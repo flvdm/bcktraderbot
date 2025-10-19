@@ -33,7 +33,7 @@ class MidCandle {
     this.boosterMarkets = process.env.BOOSTER_MARKETS ? JSON.parse(process.env.BOOSTER_MARKETS) : [];
 
     this.multiplier = Number(String(process.env.MULTIPLIER).replace("x", "")) || 1;
-    if (this.multiplier > 1) {
+    if (this.multiplier !== 1) {
       this.maxOrderVolume *= this.multiplier;
       this.minOrderVolume *= this.multiplier;
       this.lossAmount *= this.multiplier;

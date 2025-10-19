@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.16] - 2025/10/19
+
+- Minor bug fix with multiplier.
+
 ## [1.1.15] - 2025/09/26
 
 - Added MidCandle strategy ability to trade new markets that may appear.
