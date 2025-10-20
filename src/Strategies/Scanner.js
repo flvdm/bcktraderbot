@@ -11,6 +11,7 @@ class Scanner {
     this.nextFullRun = 0;
     this.first50isRunning = false;
     this.lowBalanceNotified = false;
+    this.minBalance = 0;
   }
 
   async init() {
@@ -24,6 +25,8 @@ class Scanner {
 
     const newMarketsBKP = await Utils.readDataFromFile("newMarketsBKP.json");
     this.newMarkets = newMarketsBKP ? newMarketsBKP : [];
+
+    this.minBalance = Number(process.env.MIN_ENTRY_VOLUME);
   }
 
   async _doPerpTrade(newMarket, side = "random") {
@@ -369,7 +372,7 @@ class Scanner {
 
       //Check sufficient account balance for new orders
       const capitalAvailable = await AccountStore.getAvailableCapital();
-      if (capitalAvailable < this.maxOrderVolume) {
+      if (capitalAvailable < this.minBalance) {
         if (!this.lowBalanceNotified) {
           await Utils.notify("⚠️ Insuficient balance to trade new tokens. Please deposit money.");
           this.lowBalanceNotified = true;
