@@ -1,5 +1,10 @@
 # Changelog 📋
 
+## [1.1.17] - 2025/10/20
+
+- Scanner strategy: Reduced first50 routine run time to 10 seconds, increasing the chance of being in the first 50 to trade the new token.
+- Scanner strategy: Added notification when balance is too low.
+
 ## [1.1.16] - 2025/10/19
 
 - Minor bug fix with multiplier.

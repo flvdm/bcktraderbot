@@ -84,13 +84,14 @@ else if (tradingStrategy === "SCANNER") {
     const result = await scannerStrategy.run();
     if (result === "stop") return;
 
-    const waitTime = candleTime + 1000 - ((Date.now() + timeDiff) % candleTime);
+    //const waitTime = candleTime + 1000 - ((Date.now() + timeDiff) % candleTime);
+    const waitTime = candleTime;
     setTimeout(runScannerStrategy, waitTime);
     console.log(`⏳ Waiting next ${timeframe} candle...`);
   }
 
   timeframe = "1M";
-  candleTime = 60000;
+  candleTime = 10000;
   let waitTime = candleTime - (currentTime % candleTime) + 1000;
   if (global.isDebug) waitTime = 0;
   console.log(`\n⏳ Waiting next ${timeframe} candle...`);
