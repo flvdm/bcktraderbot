@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.20] - 2025/10/20
+
+- Scanner strategy: minor fix to next full run time;
+
 ## [1.1.19] - 2025/10/20
 
 - Scanner strategy: minor fix to log info after strategy evaluation;

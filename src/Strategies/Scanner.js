@@ -466,7 +466,6 @@ class Scanner {
               this.newMarkets.splice(i, 1);
             }
           }
-          this.nextFullRun = Math.floor(Date.now() / 60000) * 60000 + 59000;
 
           await this._saveState();
         }
@@ -477,6 +476,7 @@ class Scanner {
         console.log("\n⚜️  Strategy evaluated. Possible orders placed and canceled. ( " + this.logTimes + ")\n");
         this.logTimes = "";
       }
+      this.nextFullRun = Math.floor(Date.now() / 60000) * 60000 + 59000;
     } catch (error) {
       console.log(error);
     }
