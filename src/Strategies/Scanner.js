@@ -12,6 +12,7 @@ class Scanner {
     this.first50isRunning = false;
     this.lowBalanceNotified = false;
     this.minBalance = 0;
+    this.logTimes = "";
   }
 
   async init() {
@@ -471,9 +472,11 @@ class Scanner {
         }
       }
 
-      console.log(
-        "\n⚜️  Strategy evaluated. Possible orders placed and canceled. " + Utils.getFormatedCurrentDateTime(-3) + "\n"
-      );
+      this.logTimes = this.logTimes + Utils.getFormatedCurrentDateTime(-3) + " ";
+      if (Date.now() > this.nextFullRun) {
+        console.log("\n⚜️  Strategy evaluated. Possible orders placed and canceled. ( " + this.logTimes + ")\n");
+        this.logTimes = "";
+      }
     } catch (error) {
       console.log(error);
     }

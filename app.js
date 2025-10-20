@@ -87,7 +87,7 @@ else if (tradingStrategy === "SCANNER") {
     //const waitTime = candleTime + 1000 - ((Date.now() + timeDiff) % candleTime);
     const waitTime = candleTime;
     setTimeout(runScannerStrategy, waitTime);
-    console.log(`⏳ Waiting next ${timeframe} candle...`);
+    //console.log(`⏳ Waiting next ${timeframe} candle...`);
   }
 
   timeframe = "1M";
