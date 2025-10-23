@@ -208,6 +208,19 @@ class Scanner {
               logInfo(newMarket.symbol + " trade failed. Trying again with more quantity...");
               newMarket.quantity *= 10;
             } //
+            else if (response?.message === "Market orders must specify a `quantity` or `quoteQuantity`") {
+              newMarket.attemptsLeft = 0;
+              const msg =
+                `⚠️ Get the error trying to do ${newMarket.symbol} fisrt50: ` +
+                "Market orders must specify a `quantity` or `quoteQuantity`" +
+                "\n" +
+                `newMarket.quantity: ${newMarket.quantity}` +
+                "\nKeep trying on the next candles....";
+              Utils.notify(msg);
+              console.log(msg);
+              logInfo(msg);
+              finished += 1;
+            } //
             else {
               const msg = `❌ Failed to trade ${newMarket.symbol}. Reason: ${response?.message}`;
               Utils.notify(msg);
@@ -254,6 +267,19 @@ class Scanner {
             ) {
               console.log("Trade failed. Trying again with more volume...");
               logInfo(newMarket.symbol + "Trade failed. Trying again with more volume...");
+            } //
+            else if (response?.message === "Market orders must specify a `quantity` or `quoteQuantity`") {
+              newMarket.attemptsLeft = 0;
+              const msg =
+                `⚠️ Get the error trying to do ${newMarket.symbol} fisrt50: ` +
+                "Market orders must specify a `quantity` or `quoteQuantity`" +
+                "\n" +
+                `volume: ${volume}` +
+                "\nKeep trying on the next candles....";
+              Utils.notify(msg);
+              console.log(msg);
+              logInfo(msg);
+              finished += 1;
             } //
             else {
               const msg = `❌ Failed to trade ${newMarket.symbol}. Reason: ${response?.message}`;

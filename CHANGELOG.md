@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.21] - 2025/10/23
+
+- Scanner strategy: fixed a new fail case for the first50 routine: specify quantity;
+
 ## [1.1.20] - 2025/10/20
 
 - Scanner strategy: minor fix to next full run time;
