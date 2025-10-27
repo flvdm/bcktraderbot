@@ -186,6 +186,7 @@ class Scanner {
                 logInfo(newMarket.symbol + " closing the fisrt50 position.");
               }, 5000);
               finished += 1;
+              await this._saveState();
             } //
             else if (response?.message === "No liquidity for market order") {
               newMarket.attemptsLeft = 0;
@@ -249,6 +250,7 @@ class Scanner {
                 logInfo(newMarket.symbol + " closing the fisrt50 position.");
               }, 5000);
               finished += 1;
+              await this._saveState();
             } //
             else if (response?.message === "No liquidity for market order") {
               newMarket.attemptsLeft = 0;
@@ -335,14 +337,15 @@ class Scanner {
         const candles = await Markets.getKLines(newMarket.symbol, "1m", 1);
         const trades = candles ? Number(candles[0]?.trades) : null;
         if (trades) newMarket.totalTrades += trades;
-        console.log(`${newMarket.symbol} total trades: `, newMarket.totalTrades);
-        logInfo(newMarket.symbol + " total trades.");
+        const msg = `${newMarket.symbol} total trades: ${newMarket.totalTrades}`;
+        console.log(msg);
+        logInfo(msg);
 
         if (newMarket.totalTrades > 777) {
           newMarket.phase = "clockingin";
           newMarket.clockinNextTime = Date.now() + 120000;
-          console.log(newMarket.symbol + " set to 'clockingin' phase.");
-          logInfo(newMarket.symbol + " change to 'clockingin' phase.");
+          console.log(newMarket.symbol + " changed to 'clockingin' phase.");
+          logInfo(newMarket.symbol + " changed to 'clockingin' phase.");
         }
       }
     }
@@ -434,6 +437,7 @@ class Scanner {
       });
       logInfo("newPerpMarkets", newPerpMarkets);
       if (newPerpMarkets.length > 0) {
+        this.first50isRunning = false;
         console.log("🌟 New PREP market(s) FOUND!", newPerpMarkets);
         await Utils.saveDataToFile(this.knownMarkets, "knownPerpMarkets.json");
         for (const market of newPerpMarkets) {
@@ -465,6 +469,7 @@ class Scanner {
       });
       logInfo("newSpotMarkets", newSpotMarkets);
       if (newSpotMarkets.length > 0) {
+        this.first50isRunning = false;
         console.log("🌟 New SPOT market(s) FOUND!", newSpotMarkets);
         await Utils.saveDataToFile(this.knownSpotMarkets, "knownSpotMarkets.json");
         for (const spotMarket of newSpotMarkets) {
@@ -482,6 +487,7 @@ class Scanner {
         await this._doFirst50Routine();
 
         if (Date.now() > this.nextFullRun) {
+          logInfo("Full Run.");
           for (let i = this.newMarkets.length - 1; i >= 0; i--) {
             const newMarket = this.newMarkets[i];
 

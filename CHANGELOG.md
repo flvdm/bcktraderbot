@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.22] - 2025/10/27
+
+- Scanner strategy: fixed clocking in routine not running;
+
 ## [1.1.21] - 2025/10/23
 
 - Scanner strategy: fixed a new fail case for the first50 routine: specify quantity;
