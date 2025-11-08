@@ -1,5 +1,6 @@
 import axios from "axios";
 import { auth } from "./Authentication.js";
+import Utils from "../Utils/Utils.js";
 
 class Account {
   async getAccount() {
@@ -18,7 +19,7 @@ class Account {
 
       return response.data;
     } catch (error) {
-      console.error("getAccount ERROR", error.response?.data || error.message);
+      console.error("getAccount ERROR", error.response?.data || error.message, Utils.getFormatedCurrentDateTime(-3));
       return null;
     }
   }
@@ -39,7 +40,7 @@ class Account {
 
       return response.data;
     } catch (error) {
-      console.error("getCollateral ERROR", error.response?.data || error.message);
+      console.error("getCollateral ERROR", error.response?.data || error.message, Utils.getFormatedCurrentDateTime(-3));
       return null;
     }
   }

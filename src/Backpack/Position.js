@@ -1,5 +1,6 @@
 import axios from "axios";
 import { auth } from "./Authentication.js";
+import Utils from "../Utils/Utils.js";
 
 class Position {
   async getOpenPositions() {
@@ -14,7 +15,11 @@ class Position {
       });
       return response.data;
     } catch (error) {
-      console.error("getOpenPositions ERROR", error.response?.data || error.message);
+      console.error(
+        "getOpenPositions ERROR",
+        error.response?.data || error.message,
+        Utils.getFormatedCurrentDateTime(-3)
+      );
       return null;
     }
   }

@@ -7,7 +7,7 @@ class Markets {
       const response = await axios.get(`${process.env.API_URL}/api/v1/markets`);
       return response.data;
     } catch (error) {
-      console.error("getMarkets ERROR", error.response?.data || error.message);
+      console.error("getMarkets ERROR", error.response?.data || error.message, Utils.getFormatedCurrentDateTime(-3));
       return null;
     }
   }
@@ -50,7 +50,7 @@ class Markets {
       const data = response.data;
       return data;
     } catch (error) {
-      console.error("getKLines ERROR", error.response?.data || error.message);
+      console.error("getKLines ERROR", error.response?.data || error.message, Utils.getFormatedCurrentDateTime(-3));
       return null;
     }
   }
@@ -62,7 +62,11 @@ class Markets {
       });
       return response.data;
     } catch (error) {
-      console.error("getAllMarkPrices ERROR", error.response?.data || error.message);
+      console.error(
+        "getAllMarkPrices ERROR",
+        error.response?.data || error.message,
+        Utils.getFormatedCurrentDateTime(-3)
+      );
       return null;
     }
   }

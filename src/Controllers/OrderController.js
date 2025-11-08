@@ -22,7 +22,7 @@ class OrderController {
     try {
       await Order.cancelOpenOrder(symbol, orderId, clientId);
     } catch (err) {
-      console.error("❌ cancelOrder ERROR", err.message);
+      console.error("❌ cancelOrder ERROR", err.message, Utils.getFormatedCurrentDateTime(-3));
     }
   }
 
@@ -31,7 +31,7 @@ class OrderController {
     try {
       await Order.cancelOpenOrders(symbol, orderType);
     } catch (err) {
-      console.error("❌ cancelAllOrders ERROR", err.message);
+      console.error("❌ cancelAllOrders ERROR", err.message, Utils.getFormatedCurrentDateTime(-3));
     }
   }
 
@@ -94,7 +94,7 @@ class OrderController {
       logInfo("openMarketOrder body: ", body);
       return await Order.executeOrder(body);
     } catch (error) {
-      console.log("❌ openMarketOrder ERROR", error);
+      console.log("❌ openMarketOrder ERROR", error, Utils.getFormatedCurrentDateTime(-3));
     }
   }
 
@@ -170,7 +170,7 @@ class OrderController {
       logInfo("createLimitTriggerOrder body: ", body);
       return await Order.executeOrder(body);
     } catch (err) {
-      console.error("❌ createLimitTriggerOrder ERROR", err.message);
+      console.error("❌ createLimitTriggerOrder ERROR", err.message, Utils.getFormatedCurrentDateTime(-3));
     }
   }
 
@@ -239,7 +239,7 @@ class OrderController {
       logInfo("createMarketTriggerOrder body: ", body);
       return await Order.executeOrder(body);
     } catch (err) {
-      console.error("❌ createMarketTriggerOrder ERROR", err.message);
+      console.error("❌ createMarketTriggerOrder ERROR", err.message, Utils.getFormatedCurrentDateTime(-3));
     }
   }
 
@@ -267,7 +267,7 @@ class OrderController {
 
       await Order.executeOrder(body);
     } catch (err) {
-      console.error("❌ createTestOrder ERROR", err.message);
+      console.error("❌ createTestOrder ERROR", err.message, Utils.getFormatedCurrentDateTime(-3));
     }
   }
 
@@ -332,7 +332,7 @@ class OrderController {
       logInfo("createBatchOfMarketTriggerOrders formatedOrders: ", formatedOrders);
       return await Order.executeOrdersBatch(formatedOrders);
     } catch (err) {
-      console.error("❌ createBatchOfMarketTriggerOrders ERROR", err.message);
+      console.error("❌ createBatchOfMarketTriggerOrders ERROR", err.message, Utils.getFormatedCurrentDateTime(-3));
     }
   }
 
@@ -355,7 +355,7 @@ class OrderController {
       logInfo("openOrderSpot body: ", body);
       return await Order.executeOrder(body);
     } catch (error) {
-      console.log(error);
+      console.log(error, Utils.getFormatedCurrentDateTime(-3));
     }
   }
 }

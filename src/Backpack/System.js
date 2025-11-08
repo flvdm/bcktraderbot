@@ -1,13 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
+import Utils from "../Utils/Utils";
 
 class System {
-
   async getStatus() {
     try {
       const response = await axios.get(`${process.env.API_URL}/api/v1/status`);
-      return response.data
+      return response.data;
     } catch (error) {
-      console.error('getStatus ERROR', error.response?.data || error.message);
+      console.error("getStatus ERROR", error.response?.data || error.message, Utils.getFormatedCurrentDateTime(-3));
       return null;
     }
   }
@@ -15,9 +15,9 @@ class System {
   async getPing() {
     try {
       const response = await axios.get(`${process.env.API_URL}/api/v1/ping`);
-      return response.data
+      return response.data;
     } catch (error) {
-      console.error('getPing ERROR', error.response?.data || error.message);
+      console.error("getPing ERROR", error.response?.data || error.message, Utils.getFormatedCurrentDateTime(-3));
       return null;
     }
   }
@@ -25,13 +25,12 @@ class System {
   async getSystemTime() {
     try {
       const response = await axios.get(`${process.env.API_URL}/api/v1/time`);
-      return response.data
+      return response.data;
     } catch (error) {
-      console.error('getSystemTime ERROR', error.response?.data || error.message);
+      console.error("getSystemTime ERROR", error.response?.data || error.message, Utils.getFormatedCurrentDateTime(-3));
       return null;
     }
   }
-  
 }
 
 export default new System();

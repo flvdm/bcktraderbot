@@ -1,6 +1,6 @@
 {
   "name": "bcktradebot",
-  "version": "1.1.22",
+  "version": "1.1.23",
   "description": "A simple bot to trade on the Backpack exchange.",
   "main": "app.js",
   "scripts": {
@@ -17,6 +17,7 @@
     "nodemon": "^3.1.10",
     "tweetnacl": "^1.0.3",
     "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "ws": "^8.18.3"
   }
 }

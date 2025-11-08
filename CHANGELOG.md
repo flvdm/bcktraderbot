@@ -1,5 +1,11 @@
 # Changelog 📋
 
+## [1.1.23] - 2025/11/08
+
+- PositionMonitor initial code;
+- Fixed some bugs in Scanner strategy: not trying again after geting an error;
+- Added date and time to log info accross the codebase;
+
 ## [1.1.22] - 2025/10/27
 
 - Scanner strategy: fixed clocking in routine not running;

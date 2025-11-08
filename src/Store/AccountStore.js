@@ -1,6 +1,7 @@
 import Account from "../Backpack/Account.js";
 import Position from "../Backpack/Position.js";
 import Markets from "../Backpack/Markets.js";
+import Utils from "../Utils/Utils.js";
 
 class AccountStore {
   constructor() {
@@ -19,7 +20,7 @@ class AccountStore {
       this.markets = await this.getMarkets();
       return true;
     } catch (error) {
-      console.log(error);
+      console.log(error, Utils.getFormatedCurrentDateTime(-3));
       return false;
     }
   }
@@ -57,7 +58,7 @@ class AccountStore {
 
       return markets;
     } catch (error) {
-      console.log(error);
+      console.log(error, Utils.getFormatedCurrentDateTime(-3));
       return null;
     }
   }
@@ -69,19 +70,27 @@ class AccountStore {
         this.markets = updatedMarkets;
       }
     } catch (error) {
-      console.log(error);
+      console.log(error, Utils.getFormatedCurrentDateTime(-3));
     }
   }
 
   async getAvailableCapital() {
-    const collateral = await Account.getCollateral();
-    const capitalAvailable = parseFloat(collateral.netEquityAvailable) * this.leverage * 0.95;
-    return capitalAvailable;
+    try {
+      const collateral = await Account.getCollateral();
+      const capitalAvailable = parseFloat(collateral.netEquityAvailable) * this.leverage * 0.95;
+      return capitalAvailable;
+    } catch (error) {
+      console.log(error, Utils.getFormatedCurrentDateTime(-3));
+    }
   }
 
   async getOpenFuturesPositions() {
-    const positions = await Position.getOpenPositions();
-    return positions;
+    try {
+      const positions = await Position.getOpenPositions();
+      return positions;
+    } catch (error) {
+      console.log(error, Utils.getFormatedCurrentDateTime(-3));
+    }
   }
 }
 

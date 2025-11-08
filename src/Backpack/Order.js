@@ -1,6 +1,7 @@
 import axios from "axios";
 import { auth } from "./Authentication.js";
 import { logError, logInfo } from "../Utils/logger.js";
+import Utils from "../Utils/Utils.js";
 
 class Order {
   async getOpenOrder(symbol, orderId, clientId) {
@@ -60,7 +61,7 @@ class Order {
       });
       return response.data;
     } catch (error) {
-      console.error("getOpenOrders ERROR", error.response?.data || error.message);
+      console.error("getOpenOrders ERROR", error.response?.data || error.message, Utils.getFormatedCurrentDateTime(-3));
       logError("getOpenOrders ERROR", error);
       return null;
     }
@@ -83,7 +84,7 @@ class Order {
       return data;
     } catch (error) {
       const errorMsg = error.response?.data || error.message;
-      console.error("❌ executeOrder ERROR", errorMsg);
+      console.error("❌ executeOrder ERROR", errorMsg, Utils.getFormatedCurrentDateTime(-3));
       logError("executeOrder ERROR", errorMsg, error);
       return errorMsg;
     }
@@ -105,7 +106,11 @@ class Order {
       logInfo("executeOrdersBatch Success", data);
       return data;
     } catch (error) {
-      console.error("❌ executeOrdersBatch ERROR", error.response?.data || error.message);
+      console.error(
+        "❌ executeOrdersBatch ERROR",
+        error.response?.data || error.message,
+        Utils.getFormatedCurrentDateTime(-3)
+      );
       logError("executeOrdersBatch ERROR", error);
       return null;
     }
@@ -137,7 +142,11 @@ class Order {
       });
       return response.data;
     } catch (error) {
-      console.error("cancelOpenOrder ERROR", error.response?.data || error.message);
+      console.error(
+        "cancelOpenOrder ERROR",
+        error.response?.data || error.message,
+        Utils.getFormatedCurrentDateTime(-3)
+      );
       logError("cancelOpenOrder ERROR", error);
       return null;
     }
@@ -168,7 +177,11 @@ class Order {
       });
       return response.data;
     } catch (error) {
-      console.error("cancelOpenOrders ERROR", error.response?.data || error.message);
+      console.error(
+        "cancelOpenOrders ERROR",
+        error.response?.data || error.message,
+        Utils.getFormatedCurrentDateTime(-3)
+      );
       logError("cancelOpenOrders ERROR", error);
       return null;
     }

@@ -28,6 +28,8 @@ class Scanner {
     this.newMarkets = newMarketsBKP ? newMarketsBKP : [];
 
     this.minBalance = Number(process.env.MIN_ENTRY_VOLUME);
+
+    this.initialized = true;
   }
 
   async _doPerpTrade(newMarket, side = "random") {
@@ -128,14 +130,14 @@ class Scanner {
       if (newMarket.phase === "first50") {
         console.log("1️⃣  Executing 'first50' routine for " + newMarket.symbol);
 
-        // const markPrices = await Markets.getAllMarkPrices(newMarket.symbol);
-        // const marketPrice = parseFloat(markPrices[0].markPrice);
-        // newMarket.price = marketPrice;
-
         const candles = await Markets.getKLines(newMarket.symbol, "1m", 3);
         logInfo(newMarket.symbol + " 1m candles", candles);
         let marketPrice = null;
         if (candles) marketPrice = candles[2]?.close || candles[1]?.close || candles[0]?.close || null;
+        if (!marketPrice) {
+          const markPrices = await Markets.getAllMarkPrices(newMarket.symbol);
+          marketPrice = parseFloat(markPrices[0].markPrice) || null;
+        }
         newMarket.price = parseFloat(marketPrice);
         logInfo(newMarket.symbol + " marketPrice", marketPrice);
         console.log(newMarket.symbol, newMarket.price);
@@ -156,7 +158,13 @@ class Scanner {
         newMarket.quantity = Math.pow(10, n);
 
         newMarket.attemptsLeft = 3;
-        first50Markets.push(newMarket);
+        if (marketPrice) {
+          first50Markets.push(newMarket);
+        } else {
+          const msg = `Cannot get marketPrice for ${newMarket.symbol} to run first50. Try again next run.`;
+          console.log(msg);
+          logInfo(msg);
+        }
         logInfo("newMarket", newMarket);
       }
     }
@@ -190,11 +198,11 @@ class Scanner {
             } //
             else if (response?.message === "No liquidity for market order") {
               newMarket.attemptsLeft = 0;
-              if (!newMarket.notifiedNoLiquidity) {
-                const msg = `⚠️ No liquidity for market order in ${newMarket.symbol}. Keep trying on the next candles....`;
+              const msg = `⚠️ No liquidity for market order in ${newMarket.symbol}. Keep trying on the next candles....`;
+              if (newMarket.error !== msg) {
+                newMarket.error = msg;
                 Utils.notify(msg);
                 console.log(msg);
-                newMarket.notifiedNoLiquidity = true;
               }
               logInfo(newMarket.symbol + " Trade failed: No liquidity for market order. Trying again next candle...");
               finished += 1;
@@ -212,20 +220,26 @@ class Scanner {
             else if (response?.message === "Market orders must specify a `quantity` or `quoteQuantity`") {
               newMarket.attemptsLeft = 0;
               const msg =
-                `⚠️ Get the error trying to do ${newMarket.symbol} fisrt50: ` +
+                `⚠️ Got the error trying to do ${newMarket.symbol} fisrt50: ` +
                 "Market orders must specify a `quantity` or `quoteQuantity`" +
                 "\n" +
                 `newMarket.quantity: ${newMarket.quantity}` +
                 "\nKeep trying on the next candles....";
-              Utils.notify(msg);
-              console.log(msg);
+              if (newMarket.error !== msg) {
+                newMarket.error = msg;
+                Utils.notify(msg);
+                console.log(msg);
+              }
               logInfo(msg);
               finished += 1;
             } //
             else {
               const msg = `❌ Failed to trade ${newMarket.symbol}. Reason: ${response?.message}`;
-              Utils.notify(msg);
-              console.log(msg);
+              if (newMarket.error !== msg) {
+                newMarket.error = msg;
+                Utils.notify(msg);
+                console.log(msg);
+              }
               logInfo(msg);
               newMarket.phase = "invalid";
               finished += 1;
@@ -254,11 +268,11 @@ class Scanner {
             } //
             else if (response?.message === "No liquidity for market order") {
               newMarket.attemptsLeft = 0;
-              if (!newMarket.notifiedNoLiquidity) {
-                const msg = `⚠️ No liquidity for market order in ${newMarket.symbol}. Keep trying on the next candles....`;
+              const msg = `⚠️ No liquidity for market order in ${newMarket.symbol}. Keep trying on the next candles....`;
+              if (newMarket.error !== msg) {
+                newMarket.error = msg;
                 Utils.notify(msg);
                 console.log(msg);
-                newMarket.notifiedNoLiquidity = true;
               }
               logInfo(newMarket.symbol + " Trade failed: No liquidity for market order. Trying again next candle...");
               finished += 1;
@@ -278,14 +292,20 @@ class Scanner {
                 "\n" +
                 `volume: ${volume}` +
                 "\nKeep trying on the next candles....";
-              Utils.notify(msg);
-              console.log(msg);
+              if (newMarket.error !== msg) {
+                newMarket.error = msg;
+                Utils.notify(msg);
+                console.log(msg);
+              }
               logInfo(msg);
               finished += 1;
             } //
             else {
               const msg = `❌ Failed to trade ${newMarket.symbol}. Reason: ${response?.message}`;
-              Utils.notify(msg);
+              if (newMarket.error !== msg) {
+                newMarket.error = msg;
+                Utils.notify(msg);
+              }
               console.log(msg);
               logInfo(msg);
               newMarket.phase = "invalid";
