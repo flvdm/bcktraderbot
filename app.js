@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import MidCandle from "./src/Strategies/MidCandle.js";
 import Scanner from "./src/Strategies/Scanner.js";
+import Signals from "./src/Strategies/Signals.js";
 import AccountStore from "./src/Store/AccountStore.js";
 import System from "./src/Backpack/System.js";
 import { loggerInit, logInfo } from "./src/Utils/logger.js";
@@ -97,6 +98,12 @@ else if (tradingStrategy === "SCANNER") {
   console.log(`\n⏳ Waiting next ${timeframe} candle...`);
   await new Promise((resolve) => setTimeout(resolve, waitTime));
   runScannerStrategy();
-} else {
+} //
+else if (tradingStrategy === "SIGNALS") {
+  console.log(`🎲 Selected strategy: ${tradingStrategy}`);
+  const signalsStrategy = new Signals();
+  signalsStrategy.start();
+} //
+else {
   console.log("‼️ No Valid Strategy selected!");
 }

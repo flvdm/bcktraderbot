@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.25] - 2026/01/14
+
+- Added Signals strategy;
+
 ## [1.1.24] - 2025/11/10
 
 - Minor bug fix to import package name;
