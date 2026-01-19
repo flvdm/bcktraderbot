@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.1.26] - 2026/01/18
+
+- Added Signals2 strategy;
+
 ## [1.1.25] - 2026/01/14
 
 - Added Signals strategy;

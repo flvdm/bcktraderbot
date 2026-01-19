@@ -6,6 +6,7 @@ import AccountStore from "./src/Store/AccountStore.js";
 import System from "./src/Backpack/System.js";
 import { loggerInit, logInfo } from "./src/Utils/logger.js";
 import Helper from "./src/Strategies/Helpers/Helper.js";
+import Signals2 from "./src/Strategies/Signals2.js";
 
 const envFile = process.env.ENV_FILE || ".env";
 dotenv.config({ path: envFile });
@@ -102,6 +103,11 @@ else if (tradingStrategy === "SCANNER") {
 else if (tradingStrategy === "SIGNALS") {
   console.log(`🎲 Selected strategy: ${tradingStrategy}`);
   const signalsStrategy = new Signals();
+  signalsStrategy.start();
+} //
+else if (tradingStrategy === "SIGNALS2") {
+  console.log(`🎲 Selected strategy: ${tradingStrategy}`);
+  const signalsStrategy = new Signals2();
   signalsStrategy.start();
 } //
 else {

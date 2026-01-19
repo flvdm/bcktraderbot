@@ -4,3 +4,4 @@ temp/
 .env.bkp
 data/
 logs/
+package-lock.json
