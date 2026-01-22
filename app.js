@@ -7,6 +7,7 @@ import System from "./src/Backpack/System.js";
 import { loggerInit, logInfo } from "./src/Utils/logger.js";
 import Helper from "./src/Strategies/Helpers/Helper.js";
 import Signals2 from "./src/Strategies/Signals2.js";
+import ScalperHelper from "./src/Strategies/ScalperHelper.js";
 
 const envFile = process.env.ENV_FILE || ".env";
 dotenv.config({ path: envFile });
@@ -109,6 +110,20 @@ else if (tradingStrategy === "SIGNALS2") {
   console.log(`🎲 Selected strategy: ${tradingStrategy}`);
   const signalsStrategy = new Signals2();
   signalsStrategy.start();
+} //
+else if (tradingStrategy === "SCALPER_HELPER") {
+  console.log(`🎲 Selected strategy: ${tradingStrategy}`);
+  const scalperHelper = new ScalperHelper();
+  scalperHelper.start();
+
+  const shutdown = () => {
+    scalperHelper.stop();
+    console.log("\n👋 ScalperHelper stopped");
+    process.exit(0);
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 } //
 else {
   console.log("‼️ No Valid Strategy selected!");

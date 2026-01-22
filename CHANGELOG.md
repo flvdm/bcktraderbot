@@ -1,5 +1,11 @@
 # Changelog 📋
 
+## [1.2.0] - 2026/01/22
+
+- Added ScalperHelper strategy;
+- Added OrderBook class;
+- New TP/SL order added to OrderController;
+
 ## [1.1.26] - 2026/01/18
 
 - Added Signals2 strategy;

@@ -60,7 +60,7 @@ class PositionMonitor {
   }
 
   init() {
-    a;
+    //a;
   }
 
   async run() {
@@ -69,19 +69,19 @@ class PositionMonitor {
 
       this.ws.on("open", () => {
         console.log("🛰 WebSocket Connected!");
-        const msg = buildAuthSubscribe(["account.orderUpdate.*"]);
-        this.ws.send(JSON.stringify(msg));
+        //const msg = buildAuthSubscribe(["account.orderUpdate.*"]);
+        //this.ws.send(JSON.stringify(msg));
       });
 
       this.ws.on("message", async (raw) => {
         let msg;
-        msg = JSON.parse(raw);
-
+        //msg = JSON.parse(raw);
+        msg = {}; msg.stream = "account.orderUpdate";
         if (msg.stream?.startsWith("account.orderUpdate")) {
           const d = msg.data;
           if (d.e === "orderFill") {
             console.log(`📩 Order filled: ${d.s} ${d.S} ${d.q}@${d.p}`);
-            await handlePosition(d.s);
+            //await handlePosition(d.s);
           }
         }
       });

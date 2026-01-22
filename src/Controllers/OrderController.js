@@ -55,8 +55,9 @@ class OrderController {
       const formatPrice = (value) => parseFloat(value).toFixed(decimal_price).toString();
       const formatQuantity = (value) => parseFloat(value).toFixed(decimal_quantity).toString();
 
-      const entryPrice = parseFloat(entry);
-      if (!quantity) quantity = formatQuantity(Math.floor(volume / entryPrice / stepSize_quantity) * stepSize_quantity);
+      const entryPrice = entry ? parseFloat(entry) : undefined;
+      if (!quantity && entryPrice) quantity = formatQuantity(Math.floor(volume / entryPrice / stepSize_quantity) * stepSize_quantity);
+      if (!quantity) throw new Error("❌ openMarketOrder ERROR: must provide quantity or volume & entry");
 
       const body = {
         symbol: symbol,
@@ -358,6 +359,81 @@ class OrderController {
       console.log(error, Utils.getFormatedCurrentDateTime(-3));
     }
   }
+
+  async addPositionSLOrder({
+    symbol,
+    action,
+    quantity,
+    price,
+    volume,
+    decimal_quantity,
+    decimal_price,
+    stepSize_quantity,
+    tickSize,
+  }) {
+    try {
+      const formatPrice = (value) => parseFloat(value).toFixed(decimal_price).toString();
+      const formatQuantity = (value) => parseFloat(value).toFixed(decimal_quantity).toString();
+
+      if (!quantity)
+        quantity = formatQuantity(Math.floor(volume / parseFloat(price) / stepSize_quantity) * stepSize_quantity);
+
+      const body = {
+        symbol,
+        side: action === "long" ? "Bid" : "Ask",
+        orderType: process.env.OUT_ORDER_TYPE === "limit" ? "Limit" : "Market",
+        triggerQuantity: quantity,
+        reduceOnly: true,
+        timeInForce: "GTC",
+        triggerBy: this.outTriggerBy = process.env.OUT_TRIGGER_BY?.toLowerCase() === "markprice" ? "MarkPrice" : "LastPrice",
+        triggerPrice: formatPrice(price),
+      };
+
+      logInfo("addPositionSLOrder body: ", body);
+      return await Order.executeOrder(body);
+    } catch (err) {
+      console.error("❌ addPositionSLOrder ERROR", err.message, Utils.getFormatedCurrentDateTime(-3));
+    }
+  }
+
+  async addPositionSLOrTPOrder({  // The exchange determines if SL or TP based on price
+    symbol,
+    action,
+    quantity,
+    triggerPrice,
+    limitPrice,
+    volume,
+    decimal_quantity,
+    decimal_price,
+    stepSize_quantity,
+    tickSize,
+  }) {
+    try {
+      const formatPrice = (value) => parseFloat(value).toFixed(decimal_price).toString();
+      const formatQuantity = (value) => parseFloat(value).toFixed(decimal_quantity).toString();
+
+      if (!quantity)
+        quantity = formatQuantity(Math.floor(volume / parseFloat(limitPrice ? limitPrice : triggerPrice) / stepSize_quantity) * stepSize_quantity);
+
+      const body = {
+        symbol,
+        side: action === "long" ? "Bid" : "Ask",
+        orderType: process.env.OUT_ORDER_TYPE === "limit" ? "Limit" : "Market",
+        triggerQuantity: quantity,
+        reduceOnly: true,
+        timeInForce: "GTC",
+        triggerBy: this.outTriggerBy = process.env.OUT_TRIGGER_BY?.toLowerCase() === "markprice" ? "MarkPrice" : "LastPrice",
+        triggerPrice: formatPrice(triggerPrice),
+      };
+      if (limitPrice) body.price = formatPrice(limitPrice);
+
+      logInfo("addPositionSLOrTPOrder body: ", body);
+      return await Order.executeOrder(body);
+    } catch (err) {
+      console.error("❌ addPositionSLOrTPOrder ERROR", err.message, Utils.getFormatedCurrentDateTime(-3));
+    }
+  }
+
 }
 
 export default new OrderController();
