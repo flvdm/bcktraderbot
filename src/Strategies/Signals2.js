@@ -71,11 +71,13 @@ class Signals2 {
     this.eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log("📨 Event received:", data);
-        logInfo("Event received", data);
 
         // Skip signals from other strategies
-        if (data?.data?.strategyName !== this.signalStrategy) return;
+        const strategyName = typeof data?.data?.strategyName === "string" ? data?.data?.strategyName.trim().toUpperCase() : "";
+        if (strategyName !== this.signalStrategy) return;
+
+        console.log("📨 Event received:", data);
+        logInfo("Event received", data);
 
         // Process received signal
         if (data.type === "signal") this._processSignal(data.data);

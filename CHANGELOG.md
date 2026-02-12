@@ -1,8 +1,12 @@
 # Changelog 📋
 
+## [1.2.3] - 2026/02/12
+
+- Signals2 strategy: string comparison to strategy name minor fix;
+
 ## [1.2.2] - 2026/02/12
 
-- Signals2 strategy: strategy name filtering minor fix;
+- Signals2 strategy name filtering minor fix;
 
 ## [1.2.1] - 2026/02/12
 
