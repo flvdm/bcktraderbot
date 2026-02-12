@@ -16,7 +16,7 @@ class Signals2 {
     this.positions = new Map();
     this.onboarding = new Map();
 
-    this.signalStrategy = String(process.env.SIGNAL_STRATEGY).trim().toUpperCase();
+    this.signalStrategy = String(process.env.SIGNAL_STRATEGY ?? "").trim().toLowerCase();
 
     this.authorizedMarkets = JSON.parse(process.env.AUTHORIZED_MARKETS) || [];
     this.maxOrderVolume = Number(process.env.ENTRY_VOLUME);
@@ -47,7 +47,8 @@ class Signals2 {
 
   _initSSEReceiver() {
     // SSE endpoint URL - configurable via env variable
-    const sseUrl = process.env.SSE_SIGNALS_URL || "http://localhost:3003/events";
+    let sseUrl = process.env.SSE_SIGNALS_URL || "http://localhost:3003/events";
+    if (this.signalStrategy) sseUrl += `?strategy=${this.signalStrategy}`;
 
     console.log(`🔌 Connecting to SSE endpoint: ${sseUrl}`);
 
@@ -71,17 +72,12 @@ class Signals2 {
     this.eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-
-        // Skip signals from other strategies
-        const strategyName = typeof data?.data?.strategyName === "string" ? data?.data?.strategyName.trim().toUpperCase() : "";
-        if (strategyName !== this.signalStrategy) return;
-
         console.log("📨 Event received:", data);
         logInfo("Event received", data);
 
         // Process received signal
         if (data.type === "signal") this._processSignal(data.data);
-        if (data.type === "positions") this._checkPositions(data.data?.msg);
+        if (data.type === "positions") this._checkPositions(data.data);
       } catch (error) {
         console.error("❌ Error processing SSE message:", error);
         logInfo("SSE message processing error", { error: error.message, data: event.data });
@@ -254,8 +250,8 @@ class Signals2 {
 
     order.entry = signal.price;
     order.volume = signal.volume * this.maxOrderVolume;
-    order.stop = signal.stop;
-    order.target = signal.target;
+    order.stop = signal.metadata?.sl ?? signal.stop;
+    order.target = signal.metadata?.tp ?? signal.target;
     order.action = signal.side === "buy" ? "long" : "short";
 
     if (signal.type === "entry-market") {

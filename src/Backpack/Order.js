@@ -84,8 +84,8 @@ class Order {
       return data;
     } catch (error) {
       const errorMsg = error.response?.data || error.message;
-      console.error("❌ executeOrder ERROR", errorMsg, Utils.getFormatedCurrentDateTime(-3));
-      logError("executeOrder ERROR", errorMsg, error);
+      console.error("❌ executeOrder ERROR", errorMsg, Utils.getFormatedCurrentDateTime(-3), `${body.symbol} p:${body.price} q:${body.quantity} tq:${body.triggerQuantity} qq:${body.quoteQuantity}`);
+      logError("executeOrder ERROR " + body.symbol, errorMsg, error);
       return errorMsg;
     }
   }

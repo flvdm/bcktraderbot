@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.2.4] - 2026/02/12
+
+- Signals2 strategy: provide strategy to SSE query; Use metadata sl & tp;
+
 ## [1.2.3] - 2026/02/12
 
 - Signals2 strategy: string comparison to strategy name minor fix;
