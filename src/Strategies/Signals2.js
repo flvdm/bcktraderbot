@@ -79,7 +79,7 @@ class Signals2 {
 
         // Process received signal
         if (data.type === "signal") this._processSignal(data.data);
-        if (data.type === "positions") this._checkPositions(data.data);
+        if (data.type === "positions") this._checkPositions(data.data?.msg);
       } catch (error) {
         console.error("❌ Error processing SSE message:", error);
         logInfo("SSE message processing error", { error: error.message, data: event.data });

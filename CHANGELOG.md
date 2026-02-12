@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.2.2] - 2026/02/12
+
+- Signals2 strategy: strategy name filtering minor fix;
+
 ## [1.2.1] - 2026/02/12
 
 - Signals2 strategy: Added strategy name filtering;
