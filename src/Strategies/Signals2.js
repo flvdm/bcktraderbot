@@ -16,6 +16,8 @@ class Signals2 {
     this.positions = new Map();
     this.onboarding = new Map();
 
+    this.signalStrategy = String(process.env.SIGNAL_STRATEGY).trim().toUpperCase();
+
     this.authorizedMarkets = JSON.parse(process.env.AUTHORIZED_MARKETS) || [];
     this.maxOrderVolume = Number(process.env.ENTRY_VOLUME);
     this.multiplier = Number(String(process.env.MULTIPLIER).replace("x", "")) || 1;
@@ -71,6 +73,9 @@ class Signals2 {
         const data = JSON.parse(event.data);
         console.log("📨 Event received:", data);
         logInfo("Event received", data);
+
+        // Skip signals from other strategies
+        if (data?.data?.strategyName !== this.signalStrategy) return;
 
         // Process received signal
         if (data.type === "signal") this._processSignal(data.data);

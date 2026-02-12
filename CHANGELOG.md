@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.2.1] - 2026/02/12
+
+- Signals2 strategy: Added strategy name filtering;
+
 ## [1.2.0] - 2026/01/22
 
 - Added ScalperHelper strategy;
