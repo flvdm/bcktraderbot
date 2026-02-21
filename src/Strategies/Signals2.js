@@ -25,6 +25,8 @@ class Signals2 {
       this.maxOrderVolume *= this.multiplier;
     }
 
+    this.invertOrderSide = process.env.INVERT_ORDER_SIDE === "true";
+
     logInfo("Signals2 properties", this);
   }
 
@@ -250,9 +252,15 @@ class Signals2 {
 
     order.entry = signal.price;
     order.volume = signal.volume * this.maxOrderVolume;
-    order.stop = signal.metadata?.sl ?? signal.stop;
-    order.target = signal.metadata?.tp ?? signal.target;
-    order.action = signal.side === "buy" ? "long" : "short";
+    if (this.invertOrderSide) {
+      order.stop = signal.metadata?.tp ?? signal.target;
+      order.target = signal.metadata?.sl ?? signal.stop;
+      order.action = signal.side === "buy" ? "short" : "long";
+    } else {
+      order.stop = signal.metadata?.sl ?? signal.stop;
+      order.target = signal.metadata?.tp ?? signal.target;
+      order.action = signal.side === "buy" ? "long" : "short";
+    }
 
     if (signal.type === "entry-market") {
       this.onboarding.set(signal.symbol, true);

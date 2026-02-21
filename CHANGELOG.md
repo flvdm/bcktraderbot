@@ -1,5 +1,9 @@
 # Changelog 📋
 
+## [1.2.5] - 2026/02/21
+
+- Signals2: added option to invert order side;
+
 ## [1.2.4] - 2026/02/12
 
 - Signals2 strategy: provide strategy to SSE query; Use metadata sl & tp;

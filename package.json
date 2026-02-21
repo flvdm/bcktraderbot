@@ -1,6 +1,6 @@
 {
   "name": "bcktradebot",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "A simple bot to trade on the Backpack exchange.",
   "main": "app.js",
   "scripts": {
